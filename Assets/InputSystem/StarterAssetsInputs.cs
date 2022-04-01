@@ -7,19 +7,19 @@ namespace StarterAssets
 {
 	public class StarterAssetsInputs : MonoBehaviour
 	{
-		[Header("Character Input Values")]
-		public Vector2 move;
-		public Vector2 look;
-		public bool jump;
-		public bool sprint;
+		//[Header("Character Input Values")]
+		public Vector2 Move { get; private set; }
+		public Vector2 Look { get; private set; }
+		public bool Jump { get; set; }
+		public bool Sprint { get; private set; }
 
-		[Header("Movement Settings")]
-		public bool analogMovement;
+		//[Header("Movement Settings")]
+		public bool AnalogMovement { get; private set; }
 
 #if !UNITY_IOS || !UNITY_ANDROID
-		[Header("Mouse Cursor Settings")]
-		public bool cursorLocked = true;
-		public bool cursorInputForLook = true;
+		//[Header("Mouse Cursor Settings")]
+		public bool CursorLocked { get; private set; } = true;
+		public bool CursorInputForLook { get; private set; } = true;
 #endif
 
 #if ENABLE_INPUT_SYSTEM && STARTER_ASSETS_PACKAGES_CHECKED
@@ -30,7 +30,7 @@ namespace StarterAssets
 
 		public void OnLook(InputValue value)
 		{
-			if(cursorInputForLook)
+			if(CursorInputForLook)
 			{
 				LookInput(value.Get<Vector2>());
 			}
@@ -52,29 +52,29 @@ namespace StarterAssets
 
 		public void MoveInput(Vector2 newMoveDirection)
 		{
-			move = newMoveDirection;
+			Move = newMoveDirection;
 		} 
 
 		public void LookInput(Vector2 newLookDirection)
 		{
-			look = newLookDirection;
+			Look = newLookDirection;
 		}
 
 		public void JumpInput(bool newJumpState)
 		{
-			jump = newJumpState;
+			Jump = newJumpState;
 		}
 
 		public void SprintInput(bool newSprintState)
 		{
-			sprint = newSprintState;
+			Sprint = newSprintState;
 		}
 
 #if !UNITY_IOS || !UNITY_ANDROID
 
 		private void OnApplicationFocus(bool hasFocus)
 		{
-			SetCursorState(cursorLocked);
+			SetCursorState(CursorLocked);
 		}
 
 		private void SetCursorState(bool newState)
