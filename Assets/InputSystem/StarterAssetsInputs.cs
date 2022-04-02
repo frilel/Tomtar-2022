@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Events;
 #if ENABLE_INPUT_SYSTEM && STARTER_ASSETS_PACKAGES_CHECKED
 using UnityEngine.InputSystem;
 #endif
@@ -15,7 +16,9 @@ namespace StarterAssets
 
 		public bool Aim { get; private set; }
 
+		public UnityEvent<InputValue> FireEvent;
 		public bool Fire { get; set; }
+
 
 		//[Header("Movement Settings")]
 		public bool AnalogMovement { get; private set; }
@@ -57,6 +60,7 @@ namespace StarterAssets
 
 		public void OnFire(InputValue value)
 		{
+			FireEvent.Invoke(value);
 			FireInput(value.isPressed);
 		}
 #else

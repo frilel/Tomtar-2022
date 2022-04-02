@@ -8,10 +8,6 @@ namespace StarterAssets {
         public GameObject mainCamera;
         public GameObject aimCamera;
         public LayerMask aimMask;
-        public GameObject aimTarget;
-
-        public const float fireTimeout = 1f;
-        private float fireTimeoutDelta = 0f;
 
         private StarterAssetsInputs input;
         private ThirdPersonController moveController;
@@ -26,15 +22,6 @@ namespace StarterAssets {
         // Update is called once per frame
         void Update()
         {
-            // Fire timeout calculations
-            if (fireTimeoutDelta > 0f) {
-                fireTimeoutDelta -= Time.deltaTime;
-                if (fireTimeoutDelta <= 0f) {
-                    // Fire lockout is over
-                    aimTarget.SetActive(false);
-                }
-            }
-
             if (input.Aim) {
                 if (!aimCamera.activeInHierarchy) {
                     mainCamera.SetActive(false);
@@ -43,22 +30,14 @@ namespace StarterAssets {
                 }
 
                 // Calculate aim location
-                Vector3 target = AimTarget();
-                if (target != Vector3.positiveInfinity){
+                if (Physics.Raycast(AimRay(), out RaycastHit raycastHit, 999f, aimMask)) {
+                    Vector3 target = raycastHit.point;
+                    
                     // Look towards target
                     Vector3 lookPos = target;
                     lookPos.y = transform.position.y;
                     Vector3 lookDir = (lookPos - transform.position).normalized;
                     transform.forward = Vector3.Lerp(transform.forward, lookDir, 0.5f);
-
-                    // Check for fire
-                    if (input.Fire && fireTimeoutDelta <= 0f) {
-                        fireTimeoutDelta = fireTimeout;
-
-                        // Show target in game
-                        aimTarget.SetActive(true);
-                        aimTarget.transform.position = target;
-                    }
                 }
             } else {
                 if (!mainCamera.activeInHierarchy){
@@ -69,13 +48,9 @@ namespace StarterAssets {
             }
         }
 
-        public Vector3 AimTarget() {
-            Vector3 target = Vector3.zero;
-            if (Physics.Raycast(Camera.main.transform.position, Camera.main.transform.forward, out RaycastHit raycastHit, 999f, aimMask)) {
-                return raycastHit.point;
-            }
-
-            return Vector3.positiveInfinity;
+        public Ray AimRay() {
+            // TODO: ray origin should probably be on the plane of the character instead of the camera
+            return new Ray(Camera.main.transform.position, Camera.main.transform.forward);
         }
     }
 }
