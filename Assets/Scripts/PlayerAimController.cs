@@ -10,6 +10,9 @@ namespace StarterAssets {
         public LayerMask aimMask;
         public GameObject aimTarget;
 
+        public const float fireTimeout = 1f;
+        private float fireTimeoutDelta = 0f;
+
         private StarterAssetsInputs input;
         private ThirdPersonController moveController;
 
@@ -23,6 +26,15 @@ namespace StarterAssets {
         // Update is called once per frame
         void Update()
         {
+            // Fire timeout calculations
+            if (fireTimeoutDelta > 0f) {
+                fireTimeoutDelta -= Time.deltaTime;
+                if (fireTimeoutDelta <= 0f) {
+                    // Fire lockout is over
+                    aimTarget.SetActive(false);
+                }
+            }
+
             if (input.Aim) {
                 if (!aimCamera.activeInHierarchy) {
                     mainCamera.SetActive(false);
@@ -33,28 +45,27 @@ namespace StarterAssets {
                 // Calculate aim location
                 Vector3 target = AimTarget();
                 if (target != Vector3.positiveInfinity){
-                    // Show target in game
-                    aimTarget.SetActive(true);
-                    aimTarget.transform.position = target;
-                    
                     // Look towards target
                     Vector3 lookPos = target;
                     lookPos.y = transform.position.y;
                     Vector3 lookDir = (lookPos - transform.position).normalized;
                     transform.forward = Vector3.Lerp(transform.forward, lookDir, 0.5f);
-                } else {
-                    aimTarget.SetActive(false);
+
+                    // Check for fire
+                    if (input.Fire && fireTimeoutDelta <= 0f) {
+                        fireTimeoutDelta = fireTimeout;
+
+                        // Show target in game
+                        aimTarget.SetActive(true);
+                        aimTarget.transform.position = target;
+                    }
                 }
-
-
-            } else if (!input.Aim) {
+            } else {
                 if (!mainCamera.activeInHierarchy){
                     mainCamera.SetActive(true);
                     aimCamera.SetActive(false);
                     moveController.SetRotateOnMove(true);
-                    aimTarget.SetActive(false);
                 }
-
             }
         }
 
