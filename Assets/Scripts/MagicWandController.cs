@@ -34,12 +34,19 @@ public class MagicWandController : MonoBehaviour
     {
         if (target != null) {
             Ray aimRay = aimController.AimRay();
-            Vector3 newPosition = aimRay.GetPoint(targetLatchDistance);
+            ConstrainedPathObject constrainedPath = target.GetComponentInParent<ConstrainedPathObject>();
+            if (constrainedPath != null){
+                // TODO: cache old stopped value to it can be restored in UnLatch
+                constrainedPath.stopped = true;
+                constrainedPath.MoveByAim(aimRay);
+            } else {
+                Vector3 newPosition = aimRay.GetPoint(targetLatchDistance);
 
-            Vector3 delta = newPosition - target.transform.position;
-            target.GetComponent<CharacterController>().Move(delta);
+                Vector3 delta = newPosition - target.transform.position;
+                target.GetComponent<CharacterController>().Move(delta);
 
-            // targetLatchDistance = (target.transform.position - aimRay.origin).magnitude;
+                // targetLatchDistance = (target.transform.position - aimRay.origin).magnitude;
+            }            
         }
     }
 
@@ -47,13 +54,14 @@ public class MagicWandController : MonoBehaviour
     {
         if (!value.isPressed){
             // Just released, unlock target
-            unLatch();
+            UnLatch();
         } else {
             if (Physics.Raycast(aimController.AimRay(), out RaycastHit raycastHit, 999f, layerMask)) {
 
                 // Just pressed, lock target
                 if (raycastHit.collider.gameObject.CompareTag("MagicMoveable")){
                     target = raycastHit.collider.gameObject;
+
                     targetLatchDistance = raycastHit.distance;
                     Physics.IgnoreCollision(raycastHit.collider, GetComponent<Collider>(), true);
                     if (target.GetComponent<Rigidbody>() != null){
@@ -64,7 +72,7 @@ public class MagicWandController : MonoBehaviour
         }
     }
 
-    private void unLatch(){
+    private void UnLatch(){
         if (target != null){
             Physics.IgnoreCollision(target.GetComponent<Collider>(), GetComponent<Collider>(), false);
             if (target.GetComponent<Rigidbody>() != null){
