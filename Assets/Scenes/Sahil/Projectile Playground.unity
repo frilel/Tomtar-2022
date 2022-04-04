@@ -277,22 +277,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: P1ParentWithAim
       objectReference: {fileID: 0}
-    - target: {fileID: 1408925156326123528, guid: 5a0c3dca768ea5740a322a9145c40881, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: -23.660131
-      objectReference: {fileID: 0}
-    - target: {fileID: 1408925156326123528, guid: 5a0c3dca768ea5740a322a9145c40881, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 6.9651465
-      objectReference: {fileID: 0}
-    - target: {fileID: 8291211078652134183, guid: 5a0c3dca768ea5740a322a9145c40881, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: -23.660131
-      objectReference: {fileID: 0}
-    - target: {fileID: 8291211078652134183, guid: 5a0c3dca768ea5740a322a9145c40881, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 6.9651465
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 5a0c3dca768ea5740a322a9145c40881, type: 3}
 --- !u!1 &542508511
