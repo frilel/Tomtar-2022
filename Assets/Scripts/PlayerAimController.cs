@@ -6,6 +6,7 @@ using StarterAssets;
 public class PlayerAimController : MonoBehaviour
 {
     public GameObject mainCamera;
+    public GameObject defaultCamera;
     public GameObject aimCamera;
     public LayerMask aimMask;
 
@@ -24,7 +25,7 @@ public class PlayerAimController : MonoBehaviour
     {
         if (input.Aim) {
             if (!aimCamera.activeInHierarchy) {
-                mainCamera.SetActive(false);
+                defaultCamera.SetActive(false);
                 aimCamera.SetActive(true);
                 moveController.SetRotateOnMove(false);
             }
@@ -40,8 +41,8 @@ public class PlayerAimController : MonoBehaviour
                 transform.forward = Vector3.Lerp(transform.forward, lookDir, 0.5f);
             }
         } else {
-            if (!mainCamera.activeInHierarchy){
-                mainCamera.SetActive(true);
+            if (!defaultCamera.activeInHierarchy){
+                defaultCamera.SetActive(true);
                 aimCamera.SetActive(false);
                 moveController.SetRotateOnMove(true);
             }
@@ -50,6 +51,6 @@ public class PlayerAimController : MonoBehaviour
 
     public Ray AimRay() {
         // TODO: ray origin should probably be on the plane of the character instead of the camera
-        return new Ray(Camera.main.transform.position, Camera.main.transform.forward);
+        return new Ray(mainCamera.transform.position, mainCamera.transform.forward);
     }
 }
