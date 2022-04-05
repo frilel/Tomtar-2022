@@ -20,6 +20,9 @@ public class Checkpoint : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
+        if (!other.gameObject.CompareTag("Player1") && !other.gameObject.CompareTag("Player2"))
+            return;
+
         rend.material = activeMaterial;
 
         if (affectBothPlayers)
@@ -27,7 +30,7 @@ public class Checkpoint : MonoBehaviour
             GameManager.Instance.Player1IC.SetCheckpoint(this);
             GameManager.Instance.Player2IC.SetCheckpoint(this);
         }
-        else if(other.gameObject.CompareTag("Player1"))
+        else if (other.gameObject.CompareTag("Player1"))
             GameManager.Instance.Player1IC.SetCheckpoint(this);
         else if (other.gameObject.CompareTag("Player2"))
             GameManager.Instance.Player2IC.SetCheckpoint(this);
