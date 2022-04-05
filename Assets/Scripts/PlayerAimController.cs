@@ -10,6 +10,7 @@ public class PlayerAimController : MonoBehaviour
     public GameObject aimCamera;
     public Canvas reticleCanvas;
     public LayerMask aimMask;
+    [SerializeField] private float characterLookRotationSpeed = 5f;
 
     private StarterAssetsInputs input;
     private ThirdPersonController moveController;
@@ -40,7 +41,7 @@ public class PlayerAimController : MonoBehaviour
                 Vector3 lookPos = target;
                 lookPos.y = transform.position.y;
                 Vector3 lookDir = (lookPos - transform.position).normalized;
-                transform.forward = Vector3.Lerp(transform.forward, lookDir, 0.5f);
+                transform.forward = Vector3.Lerp(transform.forward, lookDir, characterLookRotationSpeed * Time.deltaTime);
             }
         } else {
             if (!defaultCamera.activeInHierarchy){

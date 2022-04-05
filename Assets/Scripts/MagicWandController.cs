@@ -50,9 +50,9 @@ public class MagicWandController : MonoBehaviour
         }
     }
 
-    void FireEventListener(InputValue value)
+    void FireEventListener(InputAction.CallbackContext value)
     {
-        if (!value.isPressed){
+        if (!value.action.IsPressed()){
             // Just released, unlock target
             UnLatch();
         } else {
@@ -78,7 +78,8 @@ public class MagicWandController : MonoBehaviour
             if (target.GetComponent<Rigidbody>() != null){
                 target.GetComponent<Rigidbody>().isKinematic = false;
             }
+
+            target = null;
         }
-        target = null;
     }
 }
