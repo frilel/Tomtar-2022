@@ -255,7 +255,7 @@ namespace StarterAssets
 					verticalVelocity = -2f;
 				}
 
-				// Jump
+				// Jump, only on frame triggered
 				if (input.Jump && jumpTimeoutDelta <= 0.0f)
 				{
 					// the square root of H * -2 * G = how much velocity needed to reach desired height
@@ -293,8 +293,6 @@ namespace StarterAssets
 					}
 				}
 
-				// if we are not grounded, do not jump
-				input.Jump = false;
 			}
 
 			// apply gravity over time if under terminal (multiply by delta time twice to linearly speed up over time)
@@ -304,15 +302,12 @@ namespace StarterAssets
 			}
 		}
 
+		/// <summary>
+		/// Function called when colliding
+		/// </summary>
+		/// <param name="hit"></param>
         private void OnControllerColliderHit(ControllerColliderHit hit)
         {
-			//if (hit.gameObject.name.Contains("Deadzone"))
-			//	Respawn();
-			//else if (hit.gameObject.name.Contains("Checkpoint"))
-			//{
-			//	Debug.Log("Checkpoint");
-			//	GameManager.Instance.SetCheckpoint(hit.gameObject.GetComponent<Checkpoint>());
-			//}
         }
 
         private static float ClampAngle(float lfAngle, float lfMin, float lfMax)

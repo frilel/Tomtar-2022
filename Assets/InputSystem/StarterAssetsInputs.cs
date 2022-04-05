@@ -11,14 +11,11 @@ namespace StarterAssets
 		//[Header("Character Input Values")]
 		public Vector2 Move { get; private set; }
 		public Vector2 Look { get; private set; }
-		public bool Jump { get; set; }
+		public bool Jump { get; private set; }
 		public bool Sprint { get; private set; }
-
 		public bool Aim { get; private set; }
-
-		public UnityEvent<InputValue> FireEvent;
-		public bool Fire { get; set; }
-
+		public bool Fire { get; private set; }
+		public UnityEvent<InputAction.CallbackContext> FireEvent;
 
 		//[Header("Movement Settings")]
 		public bool AnalogMovement { get; private set; }
@@ -30,38 +27,38 @@ namespace StarterAssets
 #endif
 
 #if ENABLE_INPUT_SYSTEM && STARTER_ASSETS_PACKAGES_CHECKED
-		public void OnMove(InputValue value)
+		public void OnMove(InputAction.CallbackContext value)
 		{
-			MoveInput(value.Get<Vector2>());
+			MoveInput(value.ReadValue<Vector2>());
 		}
 
-		public void OnLook(InputValue value)
+		public void OnLook(InputAction.CallbackContext value)
 		{
 			if(CursorInputForLook)
 			{
-				LookInput(value.Get<Vector2>());
+				LookInput(value.ReadValue<Vector2>());
 			}
 		}
 
-		public void OnJump(InputValue value)
+		public void OnJump(InputAction.CallbackContext value)
 		{
-			JumpInput(value.isPressed);
+			JumpInput(value.action.triggered);
 		}
 
-		public void OnSprint(InputValue value)
+		public void OnSprint(InputAction.CallbackContext value)
 		{
-			SprintInput(value.isPressed);
+			SprintInput(value.action.ReadValue<float>() == 1);
 		}
 
-		public void OnAim(InputValue value)
+		public void OnAim(InputAction.CallbackContext value)
 		{
-			AimInput(value.isPressed);
+			AimInput(value.action.IsPressed());
 		}
 
-		public void OnFire(InputValue value)
+		public void OnFire(InputAction.CallbackContext value)
 		{
 			FireEvent.Invoke(value);
-			FireInput(value.isPressed);
+			FireInput(value.action.triggered);
 		}
 #else
 	// old input sys if we do decide to have it (most likely wont)...
