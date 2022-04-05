@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Events;
 #if ENABLE_INPUT_SYSTEM && STARTER_ASSETS_PACKAGES_CHECKED
 using UnityEngine.InputSystem;
 #endif
@@ -12,6 +13,12 @@ namespace StarterAssets
 		public Vector2 Look { get; private set; }
 		public bool Jump { get; set; }
 		public bool Sprint { get; private set; }
+
+		public bool Aim { get; private set; }
+
+		public UnityEvent<InputValue> FireEvent;
+		public bool Fire { get; set; }
+
 
 		//[Header("Movement Settings")]
 		public bool AnalogMovement { get; private set; }
@@ -45,6 +52,17 @@ namespace StarterAssets
 		{
 			SprintInput(value.isPressed);
 		}
+
+		public void OnAim(InputValue value)
+		{
+			AimInput(value.isPressed);
+		}
+
+		public void OnFire(InputValue value)
+		{
+			FireEvent.Invoke(value);
+			FireInput(value.isPressed);
+		}
 #else
 	// old input sys if we do decide to have it (most likely wont)...
 #endif
@@ -68,6 +86,16 @@ namespace StarterAssets
 		public void SprintInput(bool newSprintState)
 		{
 			Sprint = newSprintState;
+		}
+
+		public void AimInput(bool newAimState)
+		{
+			Aim = newAimState;
+		}
+
+		public void FireInput(bool newFireState)
+		{
+			Fire = newFireState;
 		}
 
 #if !UNITY_IOS || !UNITY_ANDROID

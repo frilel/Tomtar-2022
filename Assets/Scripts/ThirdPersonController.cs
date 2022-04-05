@@ -70,6 +70,7 @@ namespace StarterAssets
 		private float rotationVelocity;
 		private float verticalVelocity;
 		private float terminalVelocity = 53.0f;
+		private bool rotateOnMove = true;
 
 		// timeout deltatime
 		private float jumpTimeoutDelta;
@@ -215,7 +216,9 @@ namespace StarterAssets
 				float rotation = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetRotation, ref rotationVelocity, RotationSmoothTime);
 
 				// rotate to face input direction relative to camera position
-				transform.rotation = Quaternion.Euler(0.0f, rotation, 0.0f);
+				if (rotateOnMove) {
+					transform.rotation = Quaternion.Euler(0.0f, rotation, 0.0f);
+				}
 			}
 
 
@@ -329,6 +332,10 @@ namespace StarterAssets
 			
 			// when selected, draw a gizmo in the position of, and matching radius of, the grounded collider
 			Gizmos.DrawSphere(new Vector3(transform.position.x, transform.position.y - GroundedOffset, transform.position.z), GroundedRadius);
+		}
+
+		public void SetRotateOnMove(bool newRotateOnMove){
+			rotateOnMove = newRotateOnMove;
 		}
 	}
 }
