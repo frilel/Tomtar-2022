@@ -99,10 +99,7 @@ namespace StarterAssets
 		{
 			// get a reference to our main camera
 			if (mainCamera == null)
-			{
-				// mainCamera = GameObject.FindGameObjectWithTag("MainCamera");
 				mainCamera = this.transform.parent.GetComponentInChildren<Camera>().gameObject;
-            }
 		}
 
 		private void Start()
@@ -307,7 +304,18 @@ namespace StarterAssets
 			}
 		}
 
-		private static float ClampAngle(float lfAngle, float lfMin, float lfMax)
+        private void OnControllerColliderHit(ControllerColliderHit hit)
+        {
+			//if (hit.gameObject.name.Contains("Deadzone"))
+			//	Respawn();
+			//else if (hit.gameObject.name.Contains("Checkpoint"))
+			//{
+			//	Debug.Log("Checkpoint");
+			//	GameManager.Instance.SetCheckpoint(hit.gameObject.GetComponent<Checkpoint>());
+			//}
+        }
+
+        private static float ClampAngle(float lfAngle, float lfMin, float lfMax)
 		{
 			if (lfAngle < -360f) lfAngle += 360f;
 			if (lfAngle > 360f) lfAngle -= 360f;
