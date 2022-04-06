@@ -12,9 +12,6 @@ public class GameManager : MonoBehaviour
     public ThirdPersonController Player1TPC { get; set; }
     public ThirdPersonController Player2TPC { get; private set; }
 
-    [SerializeField] private StarterAssetsInputs input;
-    public StarterAssetsInputs Input { get { return input; } private set { input = value; } }
-
     private Checkpoint[] sceneCheckpoints;
     private PlayerInputManager playerInputManager;
 

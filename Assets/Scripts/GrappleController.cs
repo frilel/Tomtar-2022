@@ -12,13 +12,23 @@ public class GrappleController : MonoBehaviour
     [SerializeField] private ThirdPersonController player;
     [SerializeField] private Transform grappleTransform;
 
+    private PlayerInteractionController interactionController;
+
+    private void Start()
+    {
+        interactionController = GetComponent<PlayerInteractionController>();
+        
+        // Linerenderer screwing with stuff in edit mode, must be kept inactive and set active here
+        grappleTransform.gameObject.SetActive(true);
+    }
+
     void Update()
     {
-        if (GameManager.Instance.Input.Fire)
+        if (interactionController.Inputs.Fire)
         {
             StartGrapple();
         }
-        else if (!GameManager.Instance.Input.Fire)
+        else if (!interactionController.Inputs.Fire)
         {
             StopGrapple();
         }

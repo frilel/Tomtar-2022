@@ -1,8 +1,10 @@
 using UnityEngine;
+using StarterAssets;
 
 public class PlayerInteractionController : MonoBehaviour
 {
     private Checkpoint currentCheckpoint;
+    public StarterAssetsInputs Inputs { get; private set; }
 
     private void Start()
     {
@@ -13,7 +15,10 @@ public class PlayerInteractionController : MonoBehaviour
         else if (this.gameObject.CompareTag("Player2"))
         {
             GameManager.Instance.SetPlayer2IC(this);
+            currentCheckpoint = GameManager.Instance.Player1IC.GetCheckpoint();
         }
+
+        Inputs = GetComponent<StarterAssetsInputs>();
     }
 
     public void Respawn()
@@ -30,5 +35,10 @@ public class PlayerInteractionController : MonoBehaviour
         for (int i = 0; i < sceneCheckpoints.Length; i++)
             if (sceneCheckpoints[i] != currentCheckpoint)
                 sceneCheckpoints[i].SetInactive();
+    }
+
+    public Checkpoint GetCheckpoint()
+    {
+        return currentCheckpoint;
     }
 }
