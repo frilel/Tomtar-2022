@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 6281039705898920498}
   - component: {fileID: 8051842004150212178}
   - component: {fileID: 7943091408281262914}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: Deadzone
   m_TagString: Untagged
   m_Icon: {fileID: 0}

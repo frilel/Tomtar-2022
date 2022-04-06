@@ -8,11 +8,11 @@ public class PlayerInteractionController : MonoBehaviour
     {
         if (this.gameObject.CompareTag("Player1"))
         {
-            GameManager.Instance.SetPlayer1(this);
+            GameManager.Instance.SetPlayer1IC(this);
         }
         else if (this.gameObject.CompareTag("Player2"))
         {
-            GameManager.Instance.SetPlayer2(this);
+            GameManager.Instance.SetPlayer2IC(this);
         }
     }
 

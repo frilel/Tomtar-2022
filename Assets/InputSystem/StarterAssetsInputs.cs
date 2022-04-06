@@ -14,8 +14,11 @@ namespace StarterAssets
 		public bool Jump { get; private set; }
 		public bool Sprint { get; private set; }
 		public bool Aim { get; private set; }
+		public bool ContinuousFire { get; private set; }
 		public bool Fire { get; private set; }
 		public UnityEvent<InputAction.CallbackContext> FireEvent;
+
+		public InputAction.CallbackContext FireContext { get; private set; }
 
 		//[Header("Movement Settings")]
 		public bool AnalogMovement { get; private set; }
@@ -59,6 +62,8 @@ namespace StarterAssets
 		{
 			FireEvent.Invoke(value);
 			FireInput(value.action.triggered);
+			ContinuousFireInput(value.action.IsPressed());
+			FireContextInput(value);
 		}
 #else
 	// old input sys if we do decide to have it (most likely wont)...
@@ -94,6 +99,14 @@ namespace StarterAssets
 		{
 			Fire = newFireState;
 		}
+		public void ContinuousFireInput(bool newFireState)
+		{
+			ContinuousFire = newFireState;
+		}
+		public void FireContextInput(InputAction.CallbackContext newFireState)
+        {
+			FireContext = newFireState;
+        }
 
 #if !UNITY_IOS || !UNITY_ANDROID
 
