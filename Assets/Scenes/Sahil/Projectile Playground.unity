@@ -231,15 +231,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1094627875469563802, guid: 5a0c3dca768ea5740a322a9145c40881, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 23.869133
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1094627875469563802, guid: 5a0c3dca768ea5740a322a9145c40881, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 14.28964
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1094627875469563802, guid: 5a0c3dca768ea5740a322a9145c40881, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -10.250879
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1094627875469563802, guid: 5a0c3dca768ea5740a322a9145c40881, type: 3}
       propertyPath: m_LocalRotation.w
@@ -273,17 +273,25 @@ PrefabInstance:
       propertyPath: m_Name
       value: P1ParentWithAim
       objectReference: {fileID: 0}
+    - target: {fileID: 1408925156326123528, guid: 5a0c3dca768ea5740a322a9145c40881, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0.20000005
+      objectReference: {fileID: 0}
+    - target: {fileID: 1408925156326123528, guid: 5a0c3dca768ea5740a322a9145c40881, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -3.2857327
+      objectReference: {fileID: 0}
     - target: {fileID: 8291211078652134183, guid: 5a0c3dca768ea5740a322a9145c40881, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -23.660131
+      value: 0.20000005
       objectReference: {fileID: 0}
     - target: {fileID: 8291211078652134183, guid: 5a0c3dca768ea5740a322a9145c40881, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -12.91464
+      value: 1.375
       objectReference: {fileID: 0}
     - target: {fileID: 8291211078652134183, guid: 5a0c3dca768ea5740a322a9145c40881, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 6.9651465
+      value: -3.2857327
       objectReference: {fileID: 0}
     - target: {fileID: 8291211078652134183, guid: 5a0c3dca768ea5740a322a9145c40881, type: 3}
       propertyPath: m_LocalRotation.w
@@ -2162,8 +2170,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   StopType: 0
-  loop: 1
-  speed: 0.9
+  loop: 0
+  speed: 0
   stopped: 1
   lineRenderer: {fileID: 3270669759870210320}
   obj: {fileID: 1796007471}
