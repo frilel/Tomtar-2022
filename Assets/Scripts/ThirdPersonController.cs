@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 #if ENABLE_INPUT_SYSTEM && STARTER_ASSETS_PACKAGES_CHECKED
 using UnityEngine.InputSystem;
@@ -25,11 +26,31 @@ namespace StarterAssets
 		[Tooltip("Acceleration and deceleration")]
 		public float SpeedChangeRate = 10.0f;
 
+
 		[Space(10)]
+		[Header("Jump & Grappling")]
 		[Tooltip("The height the player can jump")]
-		public float JumpHeight = 1.2f;
+		[SerializeField] private float jumpHeight = 1.2f;
 		[Tooltip("The character uses its own gravity value. The engine default is -9.81f")]
-		public float Gravity = -15.0f;
+		[SerializeField] private float gravity = -15.0f;
+
+		[Tooltip("The move speed for grappling")]
+		[SerializeField] private float grappleSpeed = 20f;
+		[Tooltip("The acceleration to grapple speed")]
+		[SerializeField] private float grappleSpeedChangeRate = 5f;
+		[Tooltip("Time to rotate towards grapple point")]
+		[SerializeField] private float grappleRotationSmoothTime = 0.09f;
+		[Tooltip("Extra momentum after letting go of grapple")]
+		[SerializeField] private float momentumExtraSpeed = 9f;
+		[Tooltip("Extra upwards momentum after letting go of grapple")]
+		[SerializeField] private float momentumExtraPushup = 2f;
+		[Tooltip("The falloff speed after grappling")]
+		[SerializeField] private float momentumDrag = 0.01f;
+		[Tooltip("Maximum magnitude of acummulated momentum")]
+		[SerializeField] private float maxVelocityMomentum = 1f;
+
+		public bool IsGrappling { get; set; } = false;
+		public Vector3 GrapplePoint { get; set; } = Vector3.zero;
 
 		[Space(10)]
 		[Tooltip("Time required to pass before being able to jump again. Set to 0f to instantly jump again")]
@@ -59,6 +80,7 @@ namespace StarterAssets
 		[Tooltip("For locking the camera position on all axis")]
 		public bool LockCameraPosition = false;
 
+
 		// cinemachine
 		private float cinemachineTargetYaw;
 		private float cinemachineTargetPitch;
@@ -69,8 +91,10 @@ namespace StarterAssets
 		private float targetRotation = 0.0f;
 		private float rotationVelocity;
 		private float verticalVelocity;
+		private Vector3 velocityMomentum;
 		private float terminalVelocity = 53.0f;
 		private bool rotateOnMove = true;
+		private Vector3 grappleDir;
 
 		// timeout deltatime
 		private float jumpTimeoutDelta;
@@ -88,6 +112,7 @@ namespace StarterAssets
 		private CharacterController controller;
 		private StarterAssetsInputs input;
 		private GameObject mainCamera;
+		
 
 		private const float threshold = 0.01f;
 
@@ -114,16 +139,29 @@ namespace StarterAssets
 			// reset our timeouts on start
 			jumpTimeoutDelta = JumpTimeout;
 			fallTimeoutDelta = FallTimeout;
+
+			if (this.gameObject.CompareTag("Player1"))
+			{
+				GameManager.Instance.SetPlayer1TPC(this);
+			}
+			else if (this.gameObject.CompareTag("Player2"))
+			{
+				GameManager.Instance.SetPlayer2TPC(this);
+			}
 		}
 
-		private void Update()
+        private void Update()
 		{
-			//hasAnimator = TryGetComponent(out animator); // Try without
-			
-			JumpAndGravity();
+            Jump();
+            Gravity();
+			DampenVelocityMomentum();
 			GroundedCheck();
-			Move();
-		}
+
+            if (IsGrappling)
+                GrapplingMove();
+            else
+                Move();
+        }
 
 		private void LateUpdate()
 		{
@@ -172,20 +210,54 @@ namespace StarterAssets
 			CinemachineCameraTarget.transform.rotation = Quaternion.Euler(cinemachineTargetPitch + CameraAngleOverride, cinemachineTargetYaw, 0.0f);
 		}
 
+		private void DampenVelocityMomentum()
+		{
+			if (velocityMomentum.magnitude > 0.01f)
+				velocityMomentum -= velocityMomentum * momentumDrag * Time.deltaTime;
+			else
+				velocityMomentum = Vector3.zero;
+		}
+
+		void GrapplingMove()
+		{
+			// stop gravity
+			verticalVelocity = 0f;
+
+			grappleDir = (GrapplePoint - this.transform.position).normalized;
+
+			// Rotate to face grappleDir
+			targetRotation = Quaternion.LookRotation(grappleDir).eulerAngles.y;
+			float rotation = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetRotation, ref rotationVelocity, grappleRotationSmoothTime);
+			transform.rotation = Quaternion.Euler(0.0f, rotation, 0.0f);
+
+			// Smoothing acceleration
+			float currentSpeed = controller.velocity.magnitude;
+			float speed = Mathf.Lerp(currentSpeed, grappleSpeed, grappleSpeedChangeRate * Time.deltaTime);
+			// round speed to 3 decimal places
+			speed = Mathf.Round(speed * 1000f) / 1000f;
+
+			// Move
+			controller.Move(grappleDir * (speed * Time.deltaTime));
+
+			// Save momentum
+			velocityMomentum = grappleDir * (speed * momentumExtraSpeed * Time.deltaTime) + Vector3.up * momentumExtraPushup;
+			Vector3.ClampMagnitude(velocityMomentum, maxVelocityMomentum);
+		}
+
 		private void Move()
 		{
-			// set target speed based on move speed, sprint speed and if sprint is pressed
 			float targetSpeed = input.Sprint ? SprintSpeed : MoveSpeed;
 
-			// a simplistic acceleration and deceleration designed to be easy to remove, replace, or iterate upon
+			// when falling after grappling
+			if (velocityMomentum.sqrMagnitude > 1f)
+				targetSpeed = 1f;
 
 			// note: Vector2's == operator uses approximation so is not floating point error prone, and is cheaper than magnitude
 			// if there is no input, set the target speed to 0
-			if (input.Move == Vector2.zero) targetSpeed = 0.0f;
+			if (input.Move == Vector2.zero) 
+				targetSpeed = 0.0f;
 
-			// a reference to the players current horizontal velocity
 			float currentHorizontalSpeed = new Vector3(controller.velocity.x, 0.0f, controller.velocity.z).magnitude;
-
 			float speedOffset = 0.1f;
 			float inputMagnitude = input.AnalogMovement ? input.Move.magnitude : 1f;
 
@@ -194,7 +266,7 @@ namespace StarterAssets
 			{
 				// creates curved result rather than a linear one giving a more organic speed change
 				// note T in Lerp is clamped, so we don't need to clamp our speed
-				speed = Mathf.Lerp(currentHorizontalSpeed, targetSpeed * inputMagnitude, Time.deltaTime * SpeedChangeRate);
+				speed = Mathf.Lerp(currentHorizontalSpeed, targetSpeed * inputMagnitude, SpeedChangeRate * Time.deltaTime);
 
 				// round speed to 3 decimal places
 				speed = Mathf.Round(speed * 1000f) / 1000f;
@@ -203,9 +275,8 @@ namespace StarterAssets
 			{
 				speed = targetSpeed;
 			}
-			animationBlend = Mathf.Lerp(animationBlend, targetSpeed, Time.deltaTime * SpeedChangeRate);
+			animationBlend = Mathf.Lerp(animationBlend, targetSpeed, SpeedChangeRate * Time.deltaTime);
 
-			// normalise input direction
 			Vector3 inputDirection = new Vector3(input.Move.x, 0.0f, input.Move.y).normalized;
 
 			// note: Vector2's != operator uses approximation so is not floating point error prone, and is cheaper than magnitude
@@ -221,12 +292,10 @@ namespace StarterAssets
 				}
 			}
 
-
+			// Move
 			Vector3 targetDirection = Quaternion.Euler(0.0f, targetRotation, 0.0f) * Vector3.forward;
-
-			// move the player
-			controller.Move(targetDirection.normalized * (speed * Time.deltaTime) + new Vector3(0.0f, verticalVelocity, 0.0f) * Time.deltaTime);
-
+			controller.Move(targetDirection.normalized * (speed * Time.deltaTime) + new Vector3(0.0f, verticalVelocity, 0.0f) * Time.deltaTime + velocityMomentum * Time.deltaTime);
+			
 			// update animator if using character
 			if (hasAnimator)
 			{
@@ -235,10 +304,13 @@ namespace StarterAssets
 			}
 		}
 
-		private void JumpAndGravity()
+		private void Jump()
 		{
+			//TODO: Make jump bigger based on the time the button is pressed
 			if (Grounded)
 			{
+				velocityMomentum = Vector3.zero;
+
 				// reset the fall timeout timer
 				fallTimeoutDelta = FallTimeout;
 
@@ -259,7 +331,7 @@ namespace StarterAssets
 				if (input.Jump && jumpTimeoutDelta <= 0.0f)
 				{
 					// the square root of H * -2 * G = how much velocity needed to reach desired height
-					verticalVelocity = Mathf.Sqrt(JumpHeight * -2f * Gravity);
+					verticalVelocity = Mathf.Sqrt(jumpHeight * -2f * gravity);
 
 					// update animator if using character
 					if (hasAnimator)
@@ -295,20 +367,17 @@ namespace StarterAssets
 
 			}
 
+
+		}
+
+		private void Gravity()
+        {
 			// apply gravity over time if under terminal (multiply by delta time twice to linearly speed up over time)
 			if (verticalVelocity < terminalVelocity)
 			{
-				verticalVelocity += Gravity * Time.deltaTime;
+				verticalVelocity += gravity * Time.deltaTime;
 			}
 		}
-
-		/// <summary>
-		/// Function called when colliding
-		/// </summary>
-		/// <param name="hit"></param>
-        private void OnControllerColliderHit(ControllerColliderHit hit)
-        {
-        }
 
         private static float ClampAngle(float lfAngle, float lfMin, float lfMax)
 		{
@@ -332,5 +401,6 @@ namespace StarterAssets
 		public void SetRotateOnMove(bool newRotateOnMove){
 			rotateOnMove = newRotateOnMove;
 		}
+
 	}
 }
