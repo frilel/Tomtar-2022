@@ -16,6 +16,7 @@ public class ConstrainedPathObject : MonoBehaviour
     public bool stopped;
 
     public LineRenderer lineRenderer;
+    public Transform path;
     public GameObject obj;
     private float pointInterpolator = 0f;
     private int maxIndex;
@@ -26,6 +27,9 @@ public class ConstrainedPathObject : MonoBehaviour
     void Start()
     {
         lineRenderer = GetComponentInChildren<LineRenderer>();
+
+        ResetPositions();
+
         maxIndex = lineRenderer.positionCount - 1;
     }
 
@@ -112,5 +116,16 @@ public class ConstrainedPathObject : MonoBehaviour
         closestPoint = Vector3.zero;
         missSqrDistance = float.PositiveInfinity;
         return false; 
+    }
+
+
+    public void ResetPositions(){
+        int count = path.childCount;
+        lineRenderer.positionCount = count;
+        Vector3[] points = new Vector3[count];
+        for(int i = 0; i < count; i++){
+            points[i] = path.GetChild(i).position;
+        }
+        lineRenderer.SetPositions(points);
     }
 }
