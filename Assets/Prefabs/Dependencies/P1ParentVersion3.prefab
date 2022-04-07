@@ -327,6 +327,10 @@ PrefabInstance:
       propertyPath: m_Camera
       value: 
       objectReference: {fileID: 3276271447882643513}
+    - target: {fileID: 6962613148855431093, guid: f9fa08668b90f9c45827319333a10c0b, type: 3}
+      propertyPath: m_DefaultActionMap
+      value: Player1
+      objectReference: {fileID: 0}
     - target: {fileID: 6962613148855431097, guid: f9fa08668b90f9c45827319333a10c0b, type: 3}
       propertyPath: m_Name
       value: P1Armature
