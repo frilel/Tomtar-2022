@@ -495,7 +495,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 8944336655422409496, guid: f6d148d888ffbf54b9afe9936dfaec1f, type: 3}
       propertyPath: field of view
-      value: 40
+      value: 50
       objectReference: {fileID: 0}
     - target: {fileID: 8944336655422409497, guid: f6d148d888ffbf54b9afe9936dfaec1f, type: 3}
       propertyPath: m_Enabled
@@ -637,6 +637,10 @@ PrefabInstance:
       propertyPath: m_Follow
       value: 
       objectReference: {fileID: 2516672861035018341}
+    - target: {fileID: 3026843140542498888, guid: 7d2e63b94a7c411488d54933aff77289, type: 3}
+      propertyPath: CameraSide
+      value: 0.7
+      objectReference: {fileID: 0}
     - target: {fileID: 3026843140542498891, guid: 7d2e63b94a7c411488d54933aff77289, type: 3}
       propertyPath: m_Layer
       value: 11
