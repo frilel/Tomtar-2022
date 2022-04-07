@@ -17,7 +17,7 @@ public class ConstrainedPathObject : MonoBehaviour
 
     public LineRenderer lineRenderer;
     public Transform path;
-    public GameObject obj;
+    public Transform obj;
     private float pointInterpolator = 0f;
     private int maxIndex;
     private int direction = 1; // 1 is forwards, -1 is backwards
@@ -26,11 +26,9 @@ public class ConstrainedPathObject : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        maxIndex = path.childCount - 1;
         lineRenderer = GetComponentInChildren<LineRenderer>();
-
-        ResetPositions();
-
-        maxIndex = lineRenderer.positionCount - 1;
+        ResetLineRenderer();
     }
 
     // Update is called once per frame
@@ -54,14 +52,14 @@ public class ConstrainedPathObject : MonoBehaviour
             }
             int pointIndex = Mathf.FloorToInt(pointInterpolator) % maxIndex;
 
-            Vector3 start = lineRenderer.GetPosition(pointIndex);
-            Vector3 end = lineRenderer.GetPosition(pointIndex+1);
+            Vector3 start = GetPosition(pointIndex);
+            Vector3 end = GetPosition(pointIndex+1);
 
             // Increase lerp value relative to the distance between points to keep the speed consistent.
             pointInterpolator += direction * speed * Time.deltaTime / Vector3.Distance(start, end);
             
             // Move smoothly to next point
-            obj.transform.position = Vector3.Lerp(start, end, pointInterpolator-pointIndex);
+            obj.position = Vector3.Lerp(start, end, pointInterpolator-pointIndex);
         }
     }
 
@@ -69,13 +67,13 @@ public class ConstrainedPathObject : MonoBehaviour
     {
         // Get point closest to ray segment-by-segment and choose the best
         float minError = float.PositiveInfinity;
-        for(int i = 0; i < lineRenderer.positionCount - 1; i++){
-            Vector3 start = lineRenderer.GetPosition(i);
-            Vector3 end = lineRenderer.GetPosition(i+1);
+        for(int i = 0; i < path.childCount - 1; i++){
+            Vector3 start = GetPosition(i);
+            Vector3 end = GetPosition(i+1);
             if (ClosestPoint(ray, start, end, out Vector3 point, out float error)) {
                 if (error < minError){
                     minError = error;
-                    obj.transform.position = point;
+                    obj.position = point;
                 }
             }
         }
@@ -119,7 +117,7 @@ public class ConstrainedPathObject : MonoBehaviour
     }
 
 
-    public void ResetPositions(){
+    public void ResetLineRenderer(){
         int count = path.childCount;
         lineRenderer.positionCount = count;
         Vector3[] points = new Vector3[count];
@@ -127,5 +125,10 @@ public class ConstrainedPathObject : MonoBehaviour
             points[i] = path.GetChild(i).position;
         }
         lineRenderer.SetPositions(points);
+    }
+
+
+    private Vector3 GetPosition(int i){
+        return path.GetChild(i).transform.position;
     }
 }

@@ -401,6 +401,5 @@ namespace StarterAssets
 		public void SetRotateOnMove(bool newRotateOnMove){
 			rotateOnMove = newRotateOnMove;
 		}
-
 	}
 }

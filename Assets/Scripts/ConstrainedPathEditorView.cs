@@ -1,19 +1,20 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEditor;
 
-[ExecuteInEditMode]
-public class ConstrainedPathEditorView : MonoBehaviour
+[CustomEditor(typeof(ConstrainedPathObject))]
+public class ConstrainedPathEditorView : Editor
 {
-    // Start is called before the first frame update
-    void Start()
+    public override void OnInspectorGUI()
     {
-        
-    }
+        DrawDefaultInspector();
 
-    // Update is called once per frame
-    void Update()
-    {
-        GetComponent<ConstrainedPathObject>().ResetPositions();
+        ConstrainedPathObject script = (ConstrainedPathObject)target;
+        if (GUILayout.Button("Reset Path"))
+        {
+            script.path.position = script.obj.position;
+            script.ResetLineRenderer();
+        }
     }
 }
