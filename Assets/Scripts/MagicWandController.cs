@@ -62,6 +62,13 @@ public class MagicWandController : MonoBehaviour
                 if (raycastHit.collider.gameObject.CompareTag("MagicMoveable")){
                     target = raycastHit.collider.gameObject;
 
+                    Outline outline = target.GetComponent<Outline>();
+                    if (outline != null){
+                        outline.OutlineWidth = 5;
+                        outline.OutlineMode = Outline.Mode.OutlineAll;
+                    }
+
+
                     targetLatchDistance = raycastHit.distance;
                     Physics.IgnoreCollision(raycastHit.collider, GetComponent<Collider>(), true);
                     if (target.GetComponent<Rigidbody>() != null){
@@ -77,6 +84,12 @@ public class MagicWandController : MonoBehaviour
             Physics.IgnoreCollision(target.GetComponent<Collider>(), GetComponent<Collider>(), false);
             if (target.GetComponent<Rigidbody>() != null){
                 target.GetComponent<Rigidbody>().isKinematic = false;
+            }
+            
+            Outline outline = target.GetComponent<Outline>();
+            if (outline != null){
+                outline.OutlineWidth = 3;
+                outline.OutlineMode = Outline.Mode.OutlineVisible;
             }
 
             target = null;

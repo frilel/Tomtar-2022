@@ -33,6 +33,10 @@ public class ConstrainedPathObject : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        if (path.childCount == 1) {
+            Debug.LogWarning("ConstrainedPathObject with insufficient Path nodes: " + this.name);
+        }
+
         maxIndex = path.childCount - 1;
         lineRenderer = GetComponentInChildren<LineRenderer>();
         ResetLineRenderer();
