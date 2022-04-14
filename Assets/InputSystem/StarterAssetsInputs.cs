@@ -12,13 +12,16 @@ namespace StarterAssets
 		public Vector2 Move { get; private set; }
 		public Vector2 Look { get; private set; }
 		public bool Jump { get; private set; }
+		public bool HoldingJump { get; private set; }
 		public bool Sprint { get; private set; }
 		public bool Aim { get; private set; }
-		public bool ContinuousFire { get; private set; }
-		public bool Fire { get; private set; }
+		//public bool Fire { get; private set; }
+		//public bool HoldingFire { get; private set; }
+
+		// EVENTS
 		public UnityEvent<InputAction.CallbackContext> FireEvent;
 
-		public InputAction.CallbackContext FireContext { get; private set; }
+		//public InputAction.CallbackContext FireContext { get; private set; }
 
 		//[Header("Movement Settings")]
 		public bool AnalogMovement { get; private set; }
@@ -30,45 +33,72 @@ namespace StarterAssets
 #endif
 
 #if ENABLE_INPUT_SYSTEM && STARTER_ASSETS_PACKAGES_CHECKED
-		public void OnMove(InputAction.CallbackContext value)
+		/// <summary>
+		/// Public to assign actions in inspector for PlayerInput
+		/// </summary>
+		public void OnMove(InputAction.CallbackContext context)
 		{
-			MoveInput(value.ReadValue<Vector2>());
+			MoveInput(context.ReadValue<Vector2>());
 		}
 
-		public void OnLook(InputAction.CallbackContext value)
+		/// <summary>
+		/// Public to assign actions in inspector for PlayerInput
+		/// </summary>
+		public void OnLook(InputAction.CallbackContext context)
 		{
 			if(CursorInputForLook)
 			{
-				LookInput(value.ReadValue<Vector2>());
+				LookInput(context.ReadValue<Vector2>());
 			}
 		}
 
-		public void OnJump(InputAction.CallbackContext value)
+		/// <summary>
+		/// Public to assign actions in inspector for PlayerInput
+		/// </summary>
+		public void OnJump(InputAction.CallbackContext context)
 		{
-			JumpInput(value.action.triggered);
+            JumpInput(context.action.triggered);
+
+			// Christian: best way I could figure out how to handle holding of buttons since the input system doesn't work
+            if (Jump && context.action.phase == InputActionPhase.Started)
+				HoldingJump = true;
+			else if (Jump && context.action.phase == InputActionPhase.Canceled)
+				HoldingJump = false;
+
 		}
 
-		public void OnSprint(InputAction.CallbackContext value)
+		/// <summary>
+		/// Public to assign actions in inspector for PlayerInput
+		/// </summary>
+		public void OnSprint(InputAction.CallbackContext context)
 		{
-			SprintInput(value.action.ReadValue<float>() == 1);
+			SprintInput(context.action.ReadValue<float>() == 1);
 		}
 
-		public void OnAim(InputAction.CallbackContext value)
+		/// <summary>
+		/// Public to assign actions in inspector for PlayerInput
+		/// </summary>
+		public void OnAim(InputAction.CallbackContext context)
 		{
-			AimInput(value.action.IsPressed());
+			AimInput(context.action.IsPressed());
 		}
 
-		public void OnFire(InputAction.CallbackContext value)
+		/// <summary>
+		/// Public to assign actions in inspector for PlayerInput
+		/// </summary>
+		public void OnFire(InputAction.CallbackContext context)
 		{
-			FireEvent.Invoke(value);
-			FireInput(value.action.triggered);
-			ContinuousFireInput(value.action.IsPressed());
-			FireContextInput(value);
+			FireEvent.Invoke(context);
+			//FireInput(context.action.triggered);
+
+			//if (Fire && context.action.phase == InputActionPhase.Started)
+			//	HoldingFire = true;
+			//else if (Fire && context.action.phase == InputActionPhase.Canceled)
+			//	HoldingFire = false;
 		}
 #else
 	// old input sys if we do decide to have it (most likely wont)...
 #endif
-
 
 		public void MoveInput(Vector2 newMoveDirection)
 		{
@@ -95,18 +125,10 @@ namespace StarterAssets
 			Aim = newAimState;
 		}
 
-		public void FireInput(bool newFireState)
-		{
-			Fire = newFireState;
-		}
-		public void ContinuousFireInput(bool newFireState)
-		{
-			ContinuousFire = newFireState;
-		}
-		public void FireContextInput(InputAction.CallbackContext newFireState)
-        {
-			FireContext = newFireState;
-        }
+		//public void FireInput(bool newFireState)
+		//{
+		//	Fire = newFireState;
+		//}
 
 #if !UNITY_IOS || !UNITY_ANDROID
 

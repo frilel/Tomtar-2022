@@ -27,13 +27,13 @@ public class Checkpoint : MonoBehaviour
 
         if (affectBothPlayers)
         {
-            GameManager.Instance.Player1IC.SetCheckpoint(this);
-            GameManager.Instance.Player2IC.SetCheckpoint(this);
+            GameManager.Instance.Player1IC.SetCurrentCheckpoint(this);
+            GameManager.Instance.Player2IC.SetCurrentCheckpoint(this);
         }
         else if (other.gameObject.CompareTag("Player1"))
-            GameManager.Instance.Player1IC.SetCheckpoint(this);
+            GameManager.Instance.Player1IC.SetCurrentCheckpoint(this);
         else if (other.gameObject.CompareTag("Player2"))
-            GameManager.Instance.Player2IC.SetCheckpoint(this);
+            GameManager.Instance.Player2IC.SetCurrentCheckpoint(this);
     }
 
     public Transform GetRespawnPoint() => respawnPoint;

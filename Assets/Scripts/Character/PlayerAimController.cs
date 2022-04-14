@@ -33,7 +33,7 @@ public class PlayerAimController : MonoBehaviour
                 reticleCanvas.gameObject.SetActive(true);
             }
 
-            // Calculate aim location
+            // Calculate aim location for character rotation
             if (Physics.Raycast(AimRay(), out RaycastHit raycastHit, 999f, aimMask)) {
                   Vector3 target = raycastHit.point;
                 

@@ -4,7 +4,6 @@ using StarterAssets;
 public class PlayerInteractionController : MonoBehaviour
 {
     private Checkpoint currentCheckpoint;
-    public StarterAssetsInputs Inputs { get; private set; }
 
     private void Start()
     {
@@ -15,10 +14,8 @@ public class PlayerInteractionController : MonoBehaviour
         else if (this.gameObject.CompareTag("Player2"))
         {
             GameManager.Instance.SetPlayer2IC(this);
-            currentCheckpoint = GameManager.Instance.Player1IC.GetCheckpoint();
+            currentCheckpoint = GameManager.Instance.Player1IC.GetCurrentCheckpoint();
         }
-
-        Inputs = GetComponent<StarterAssetsInputs>();
     }
 
     public void Respawn()
@@ -27,7 +24,7 @@ public class PlayerInteractionController : MonoBehaviour
         Physics.SyncTransforms();
     }
 
-    public void SetCheckpoint(Checkpoint checkpoint)
+    public void SetCurrentCheckpoint(Checkpoint checkpoint)
     {
         currentCheckpoint = checkpoint;
         Checkpoint[] sceneCheckpoints = GameManager.Instance.GetSceneCheckpoints();
@@ -37,7 +34,7 @@ public class PlayerInteractionController : MonoBehaviour
                 sceneCheckpoints[i].SetInactive();
     }
 
-    public Checkpoint GetCheckpoint()
+    public Checkpoint GetCurrentCheckpoint()
     {
         return currentCheckpoint;
     }

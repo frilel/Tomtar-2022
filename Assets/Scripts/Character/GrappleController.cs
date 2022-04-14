@@ -1,5 +1,6 @@
 using UnityEngine;
 using StarterAssets;
+using UnityEngine.InputSystem;
 
 public class GrappleController : MonoBehaviour
 {
@@ -12,49 +13,54 @@ public class GrappleController : MonoBehaviour
     [SerializeField] private ThirdPersonController player;
     [SerializeField] private Transform grappleTransform;
 
-    private PlayerInteractionController interactionController;
+    private StarterAssetsInputs input;
+    private RaycastHit raycastHit;
 
     private void Start()
     {
-        interactionController = GetComponent<PlayerInteractionController>();
-        
+        input = GetComponent<StarterAssetsInputs>();
+        input.FireEvent.AddListener(Grapple);
+
         // Linerenderer screwing with stuff in edit mode, must be kept inactive and set active here
         grappleTransform.gameObject.SetActive(true);
     }
-
-    void Update()
-    {
-        if (interactionController.Inputs.Fire)
-        {
-            StartGrapple();
-        }
-        else if (!interactionController.Inputs.Fire)
-        {
-            StopGrapple();
-        }
-    }
-
     private void LateUpdate()
     {
         DrawGrappleRope();
     }
 
-    void StartGrapple()
+    private void OnDestroy()
     {
-        RaycastHit hit;
-        if(Physics.Raycast(mainCamera.position, mainCamera.forward, out hit, maxDistance, grappableLayer))
+        input.FireEvent.RemoveListener(Grapple);
+    }
+
+    private void Grapple(InputAction.CallbackContext context)
+    {
+        if (context.action.triggered && context.action.phase == InputActionPhase.Performed)
+        {
+            StartGrapple();
+        }
+        else if (!context.action.triggered && context.action.phase == InputActionPhase.Canceled)
+        {
+            StopGrapple();
+        }
+    }
+
+    private void StartGrapple()
+    {
+        if(Physics.Raycast(mainCamera.position, mainCamera.forward, out raycastHit, maxDistance, grappableLayer))
         {
             player.IsGrappling = true;
-            player.GrapplePoint = hit.point;
+            player.GrapplePoint = raycastHit.point;
 
             grappleTransform.parent = null;
-            grappleTransform.position = hit.point;
+            grappleTransform.position = raycastHit.point;
 
             lineRenderer.positionCount = 2;
         }
     }
 
-    void StopGrapple()
+    private void StopGrapple()
     {
         player.IsGrappling = false;
         player.GrapplePoint = Vector3.zero;
@@ -65,7 +71,7 @@ public class GrappleController : MonoBehaviour
         lineRenderer.positionCount = 0;
     }
 
-    void DrawGrappleRope()
+    private void DrawGrappleRope()
     {
         if (!player.IsGrappling)
             return;
