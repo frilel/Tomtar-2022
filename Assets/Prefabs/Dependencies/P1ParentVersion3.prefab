@@ -323,6 +323,14 @@ PrefabInstance:
       propertyPath: reticleCanvas
       value: 
       objectReference: {fileID: 748181860136412328}
+    - target: {fileID: 6767847125148247797, guid: f9fa08668b90f9c45827319333a10c0b, type: 3}
+      propertyPath: aimMask.m_Bits
+      value: 229377
+      objectReference: {fileID: 0}
+    - target: {fileID: 6962613148855431090, guid: f9fa08668b90f9c45827319333a10c0b, type: 3}
+      propertyPath: GroundLayers.m_Bits
+      value: 229377
+      objectReference: {fileID: 0}
     - target: {fileID: 6962613148855431093, guid: f9fa08668b90f9c45827319333a10c0b, type: 3}
       propertyPath: m_Camera
       value: 
@@ -330,6 +338,30 @@ PrefabInstance:
     - target: {fileID: 6962613148855431093, guid: f9fa08668b90f9c45827319333a10c0b, type: 3}
       propertyPath: m_DefaultActionMap
       value: Player1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6962613148855431093, guid: f9fa08668b90f9c45827319333a10c0b, type: 3}
+      propertyPath: m_ActionEvents.Array.data[6].m_PersistentCalls.m_Calls.Array.size
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6962613148855431093, guid: f9fa08668b90f9c45827319333a10c0b, type: 3}
+      propertyPath: m_ActionEvents.Array.data[7].m_PersistentCalls.m_Calls.Array.size
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6962613148855431093, guid: f9fa08668b90f9c45827319333a10c0b, type: 3}
+      propertyPath: m_ActionEvents.Array.data[8].m_PersistentCalls.m_Calls.Array.size
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6962613148855431093, guid: f9fa08668b90f9c45827319333a10c0b, type: 3}
+      propertyPath: m_ActionEvents.Array.data[9].m_PersistentCalls.m_Calls.Array.size
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6962613148855431093, guid: f9fa08668b90f9c45827319333a10c0b, type: 3}
+      propertyPath: m_ActionEvents.Array.data[10].m_PersistentCalls.m_Calls.Array.size
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6962613148855431093, guid: f9fa08668b90f9c45827319333a10c0b, type: 3}
+      propertyPath: m_ActionEvents.Array.data[11].m_PersistentCalls.m_Calls.Array.size
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6962613148855431097, guid: f9fa08668b90f9c45827319333a10c0b, type: 3}
       propertyPath: m_Name
@@ -460,15 +492,11 @@ PrefabInstance:
       objectReference: {fileID: 2516672861035018341}
     - target: {fileID: 2070925442191277752, guid: a1a802ecaf6775746bb2a929fb554ad8, type: 3}
       propertyPath: IgnoreTag
-      value: Player2
+      value: Player1
       objectReference: {fileID: 0}
     - target: {fileID: 2070925442191277752, guid: a1a802ecaf6775746bb2a929fb554ad8, type: 3}
       propertyPath: CameraSide
       value: 0.7
-      objectReference: {fileID: 0}
-    - target: {fileID: 2070925442191277752, guid: a1a802ecaf6775746bb2a929fb554ad8, type: 3}
-      propertyPath: CameraDistance
-      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 2070925442191277755, guid: a1a802ecaf6775746bb2a929fb554ad8, type: 3}
       propertyPath: m_Layer
@@ -493,10 +521,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 5861168047977278595}
     m_Modifications:
-    - target: {fileID: 8944336655422409496, guid: f6d148d888ffbf54b9afe9936dfaec1f, type: 3}
-      propertyPath: field of view
-      value: 50
-      objectReference: {fileID: 0}
     - target: {fileID: 8944336655422409497, guid: f6d148d888ffbf54b9afe9936dfaec1f, type: 3}
       propertyPath: m_Enabled
       value: 0
@@ -515,7 +539,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8944336655422409503, guid: f6d148d888ffbf54b9afe9936dfaec1f, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0.39999998
+      value: 8.469999
       objectReference: {fileID: 0}
     - target: {fileID: 8944336655422409503, guid: f6d148d888ffbf54b9afe9936dfaec1f, type: 3}
       propertyPath: m_LocalPosition.y
@@ -523,7 +547,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8944336655422409503, guid: f6d148d888ffbf54b9afe9936dfaec1f, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -3
+      value: -63.99
       objectReference: {fileID: 0}
     - target: {fileID: 8944336655422409503, guid: f6d148d888ffbf54b9afe9936dfaec1f, type: 3}
       propertyPath: m_LocalRotation.w
