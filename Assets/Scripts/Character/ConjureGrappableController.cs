@@ -2,7 +2,6 @@ using UnityEngine;
 using StarterAssets;
 using System.Collections.Generic;
 using UnityEngine.InputSystem;
-using System;
 
 public class ConjureGrappableController : MonoBehaviour
 {
@@ -23,8 +22,6 @@ public class ConjureGrappableController : MonoBehaviour
 
     /* TODO:
      * they get returned after x amount of time (handle in thrown object?)
-     * object gets visibly lerped to hit position and size, and back when being returned
-     * 
      */
 
     private void Start()
@@ -36,13 +33,6 @@ public class ConjureGrappableController : MonoBehaviour
     private void OnDestroy()
     {
         input.FireEvent.RemoveListener(Conjure);
-    }
-
-    private void Update()
-    {
-        // if there are objects thrown
-        // interpolate towards hitpooint or deal in thrown itself?
-
     }
 
     private void Conjure(InputAction.CallbackContext context)
