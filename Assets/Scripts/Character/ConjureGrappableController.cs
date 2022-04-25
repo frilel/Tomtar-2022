@@ -3,6 +3,9 @@ using StarterAssets;
 using System.Collections.Generic;
 using UnityEngine.InputSystem;
 
+/// <summary>
+/// Player 2's ability to conjure/throw objects that are grappable
+/// </summary>
 public class ConjureGrappableController : MonoBehaviour
 {
     [SerializeField] private List<Transform> throwOrigins;

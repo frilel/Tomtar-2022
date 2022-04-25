@@ -2,6 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// The object Player 2 throws out, which Player 1 can grapple on
+/// </summary>
 public class GrappableThrowObject : MonoBehaviour
 {
     [SerializeField] private float translationSpeed = 0.01f;

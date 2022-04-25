@@ -1,9 +1,13 @@
-using System.Collections;
 using UnityEngine;
 
+/// <summary>
+/// Script for making obstacles, doors, platforms etc. move when stepping on this collider
+/// </summary>
 [RequireComponent(typeof(Collider))]
 public class MoveTransformOnEnter : MonoBehaviour
 {
+    // TODO: Enable varying movements, such as true linear speed
+
     [SerializeField] private bool affectPlayer1 = true;
     [SerializeField] private bool affectPlayer2 = true;
     [SerializeField] private bool affectOtherColliders = false;
