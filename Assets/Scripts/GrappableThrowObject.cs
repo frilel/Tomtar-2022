@@ -33,7 +33,8 @@ public class GrappableThrowObject : MonoBehaviour
                 Quaternion.Lerp(this.transform.rotation, targetRotation, translationSpeed * 2.0f * Time.deltaTime)
                 );
             this.transform.localScale = Vector3.Lerp(this.transform.localScale, targetScale, translationSpeed * 2.0f * Time.deltaTime);
-            
+
+            // If we are close to endPos
             if ((this.transform.position - targetPosition).sqrMagnitude < 2.0f)
             {
                 myCollider.enabled = true;
@@ -49,6 +50,7 @@ public class GrappableThrowObject : MonoBehaviour
                 );
             this.transform.localScale = Vector3.Lerp(this.transform.localScale, targetScale, translationSpeed * 2.0f * Time.deltaTime);
             
+            // If we are close to endPos
             if ((this.transform.position - targetParent.position).sqrMagnitude < 2.0f)
             {
                 this.transform.position = targetParent.position;

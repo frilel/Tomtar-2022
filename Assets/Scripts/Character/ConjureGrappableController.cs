@@ -53,10 +53,6 @@ public class ConjureGrappableController : MonoBehaviour
         objectsThrown.RemoveAt(0);
 		objectsInInventory.Add(thrownToReturn);
 
-        //thrownToReturn.transform.localScale = new Vector3(scaleAtOrigin, scaleAtOrigin, scaleAtOrigin);
-        //thrownToReturn.transform.position = throwOrigins[counter].transform.position;
-        //thrownToReturn.transform.rotation = throwOrigins[counter].transform.rotation;
-        //thrownToReturn.transform.parent = throwOrigins[counter];
         thrownToReturn.Return(throwOrigins[counter].transform.position, throwOrigins[counter].transform.rotation, new Vector3(scaleAtOrigin, scaleAtOrigin, scaleAtOrigin), throwOrigins[counter]);
 
         if (counter == 0)
@@ -75,11 +71,8 @@ public class ConjureGrappableController : MonoBehaviour
             objectsThrown.Add(thrown);
 
 
-            Vector3 translatePos = hit.point + (hit.normal * scaleAtSurface);
-            //thrown.transform.parent = null;
-            thrown.Throw(translatePos, Quaternion.identity, new Vector3(scaleAtSurface, scaleAtSurface, scaleAtSurface));
-            //thrown.transform.position = translatePos;
-            //thrown.transform.localScale = new Vector3(scaleAtSurface, scaleAtSurface, scaleAtSurface);
+            Vector3 translatePos = hit.point + (hit.normal * scaleAtSurface * 0.1f);
+            thrown.Throw(translatePos, hit.transform.rotation, new Vector3(scaleAtSurface, scaleAtSurface, scaleAtSurface));
         }
     }
 

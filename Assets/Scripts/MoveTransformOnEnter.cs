@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 [RequireComponent(typeof(Collider))]
@@ -13,6 +14,13 @@ public class MoveTransformOnEnter : MonoBehaviour
     [SerializeField] private Transform endPoint;
     [SerializeField] private GameObject objectToMove;
     [SerializeField] private float translationSpeed = 1.0f;
+    //[SerializeField] private bool linearSpeed = true; // TODO
+
+    // Lerp
+    //private float lerpDuration = 3;
+    //private float startValue = 0;
+    //private float endValue = 10;
+    //float valueToLerp;
 
     private Vector3 startPos;
     private Renderer rend;
@@ -61,14 +69,24 @@ public class MoveTransformOnEnter : MonoBehaviour
             rend.material = activeMaterial;
             activated = true;
         }
-
         objectToMove.transform.position = Vector3.Lerp(objectToMove.transform.position, endPoint.position, translationSpeed * Time.deltaTime);
     }
 
     private void MoveToStartpos()
     {
         rend.material = inactiveMaterial;
-
         objectToMove.transform.position = Vector3.Lerp(objectToMove.transform.position, startPos, translationSpeed * Time.deltaTime);
     }
+
+    //IEnumerator Lerp()
+    //{
+    //    float timeElapsed = 0;
+    //    while (timeElapsed < lerpDuration)
+    //    {
+    //        valueToLerp = Mathf.Lerp(startValue, endValue, timeElapsed / lerpDuration);
+    //        timeElapsed += Time.deltaTime;
+    //        yield return null;
+    //    }
+    //    valueToLerp = endValue;
+    //}
 }
