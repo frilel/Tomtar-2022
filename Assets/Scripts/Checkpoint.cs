@@ -27,8 +27,8 @@ public class Checkpoint : MonoBehaviour
 
         if (affectBothPlayers)
         {
-            GameManager.Instance.Player1IC.SetCurrentCheckpoint(this);
-            GameManager.Instance.Player2IC.SetCurrentCheckpoint(this);
+            GameManager.Instance.Player1IC?.SetCurrentCheckpoint(this);
+            GameManager.Instance.Player2IC?.SetCurrentCheckpoint(this);
         }
         else if (other.gameObject.CompareTag("Player1"))
             GameManager.Instance.Player1IC.SetCurrentCheckpoint(this);

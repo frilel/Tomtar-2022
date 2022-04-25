@@ -112,10 +112,14 @@ public class ThirdPersonController : MonoBehaviour
     private StarterAssetsInputs input;
     private GameObject mainCamera;
 
-
     private const float threshold = 0.01f;
 
     private bool hasAnimator;
+
+    // platforms
+    private GameObject currentPlatform = null;
+    private Vector3 prevPlatformPos = Vector3.zero;
+    private Vector3 platformVelocity = Vector3.zero;
 
     private bool IsCurrentDeviceMouse => playerInput.currentControlScheme == "KeyboardMouse";
 
@@ -156,6 +160,7 @@ public class ThirdPersonController : MonoBehaviour
         Gravity();
         DampenVelocityMomentum();
         GroundedCheck();
+        PlatformCheck();
 
         if (IsGrappling)
             GrapplingMove();
@@ -187,6 +192,40 @@ public class ThirdPersonController : MonoBehaviour
         if (hasAnimator)
         {
             animator.SetBool(animIDGrounded, Grounded);
+        }
+    }
+
+    private void PlatformCheck()
+    {
+        // check if ground is platform, add platform velocity to movement if so
+        if (Grounded)
+        {
+            Vector3 spherePosition = new Vector3(transform.position.x, transform.position.y - GroundedOffset, transform.position.z);
+            Physics.SphereCast(spherePosition + (Vector3.up * 0.4f), GroundedRadius, Vector3.down, out RaycastHit hitInfo, 0.5f, GroundLayers, QueryTriggerInteraction.Ignore);
+            if (hitInfo.collider != null && hitInfo.collider.gameObject.CompareTag("MagicMoveable"))
+            {
+                if (currentPlatform == null) // We have just stepped on to the platform
+                {
+                    currentPlatform = hitInfo.collider.gameObject;
+                    prevPlatformPos = currentPlatform.transform.position;
+                }
+                else // earliest second frame on platform
+                {
+                    platformVelocity = currentPlatform.transform.position - prevPlatformPos;
+                    this.transform.position += platformVelocity;
+                    Physics.SyncTransforms();
+
+                    prevPlatformPos = currentPlatform.transform.position;
+                }
+            }
+        }
+        else
+        {
+            if (currentPlatform != null)
+            {
+                currentPlatform = null;
+                prevPlatformPos = Vector3.zero;
+            }
         }
     }
 

@@ -2,12 +2,14 @@ using UnityEngine;
 using StarterAssets;
 using System.Collections.Generic;
 using UnityEngine.InputSystem;
-using System;
 
+/// <summary>
+/// Player 2's ability to conjure/throw objects that are grappable
+/// </summary>
 public class ConjureGrappableController : MonoBehaviour
 {
     [SerializeField] private List<Transform> throwOrigins;
-    [SerializeField] private List<GameObject> objectsInInventory;
+    [SerializeField] private List<GrappableThrowObject> objectsInInventory;
     [SerializeField] private float maxDistance;
     [SerializeField] private float scaleAtOrigin = 0.1f;
     [SerializeField] private float scaleAtSurface = 1.5f;
@@ -19,12 +21,10 @@ public class ConjureGrappableController : MonoBehaviour
     private int counter = 0;
     //private float timerObject1 = 0f;
     //private float timerObject2 = 0f;
-    private List<GameObject> objectsThrown = new List<GameObject>();
+    private List<GrappableThrowObject> objectsThrown = new List<GrappableThrowObject>();
 
     /* TODO:
      * they get returned after x amount of time (handle in thrown object?)
-     * object gets visibly lerped to hit position and size, and back when being returned
-     * 
      */
 
     private void Start()
@@ -36,13 +36,6 @@ public class ConjureGrappableController : MonoBehaviour
     private void OnDestroy()
     {
         input.FireEvent.RemoveListener(Conjure);
-    }
-
-    private void Update()
-    {
-        // if there are objects thrown
-        // interpolate towards hitpooint or deal in thrown itself?
-
     }
 
     private void Conjure(InputAction.CallbackContext context)
@@ -59,14 +52,12 @@ public class ConjureGrappableController : MonoBehaviour
 
     private void ReturnFirstThrown()
     {
-        GameObject thrownToReturn = objectsThrown[0];
+        GrappableThrowObject thrownToReturn = objectsThrown[0];
         objectsThrown.RemoveAt(0);
-        objectsInInventory.Add(thrownToReturn);
+		objectsInInventory.Add(thrownToReturn);
 
-        thrownToReturn.transform.localScale = new Vector3(scaleAtOrigin, scaleAtOrigin, scaleAtOrigin);
-        thrownToReturn.transform.position = throwOrigins[counter].transform.position;
-        thrownToReturn.transform.rotation = throwOrigins[counter].transform.rotation;
-        thrownToReturn.transform.parent = throwOrigins[counter];
+        thrownToReturn.Return(throwOrigins[counter].transform.position, throwOrigins[counter].transform.rotation, new Vector3(scaleAtOrigin, scaleAtOrigin, scaleAtOrigin), throwOrigins[counter]);
+
         if (counter == 0)
             counter = 1;
         else
@@ -78,14 +69,13 @@ public class ConjureGrappableController : MonoBehaviour
         RaycastHit hit;
         if (Physics.Raycast(mainCamera.position, mainCamera.forward, out hit, maxDistance, conjurableSurface))
         {
-            GameObject thrown = objectsInInventory[0];
+            GrappableThrowObject thrown = objectsInInventory[0];
             objectsInInventory.RemoveAt(0);
             objectsThrown.Add(thrown);
-            thrown.transform.parent = null;
 
-            Vector3 translatePos = hit.point + (hit.normal * scaleAtSurface);
-            thrown.transform.position = translatePos;
-            thrown.transform.localScale = new Vector3(scaleAtSurface, scaleAtSurface, scaleAtSurface);
+
+            Vector3 translatePos = hit.point + (hit.normal * scaleAtSurface * 0.1f);
+            thrown.Throw(translatePos, hit.transform.rotation, new Vector3(scaleAtSurface, scaleAtSurface, scaleAtSurface));
         }
     }
 
