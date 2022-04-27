@@ -120,6 +120,7 @@ public class ThirdPersonController : MonoBehaviour
     private GameObject currentPlatform = null;
     private Vector3 prevPlatformPos = Vector3.zero;
     private Vector3 platformVelocity = Vector3.zero;
+    private readonly RaycastHit[] hitInfos = new RaycastHit[12];
 
     private bool IsCurrentDeviceMouse => playerInput.currentControlScheme == "KeyboardMouse";
 
@@ -200,13 +201,16 @@ public class ThirdPersonController : MonoBehaviour
         // check if ground is platform, add platform velocity to movement if so
         if (Grounded)
         {
-            Vector3 spherePosition = new Vector3(transform.position.x, transform.position.y - GroundedOffset, transform.position.z);
-            Physics.SphereCast(spherePosition + (Vector3.up * 0.4f), GroundedRadius, Vector3.down, out RaycastHit hitInfo, 0.5f, GroundLayers, QueryTriggerInteraction.Ignore);
-            if (hitInfo.collider != null && hitInfo.collider.gameObject.CompareTag("MagicMoveable"))
+            Vector3 spherePosition = new Vector3(transform.position.x, transform.position.y + 0.4f, transform.position.z);
+            Physics.SphereCastNonAlloc(spherePosition, GroundedRadius, Vector3.down, hitInfos, 0.5f, GroundLayers, QueryTriggerInteraction.Ignore);
+
+            for (int i = 0; i < hitInfos.Length; i++)
             {
+                if (hitInfos[i].collider == null || !hitInfos[i].collider.gameObject.CompareTag("MagicMoveable"))
+                    continue; // next
                 if (currentPlatform == null) // We have just stepped on to the platform
                 {
-                    currentPlatform = hitInfo.collider.gameObject;
+                    currentPlatform = hitInfos[i].collider.gameObject;
                     prevPlatformPos = currentPlatform.transform.position;
                 }
                 else // earliest second frame on platform
@@ -404,9 +408,7 @@ public class ThirdPersonController : MonoBehaviour
                     animator.SetBool(animIDFreeFall, true);
                 }
             }
-
         }
-
 
     }
 
