@@ -56,6 +56,7 @@ public class ThirdPersonController : MonoBehaviour
     public float JumpTimeout = 0.50f;
     [Tooltip("Time required to pass before entering the fall state. Useful for walking down stairs")]
     public float FallTimeout = 0.15f;
+    [SerializeField] private float terminalSlidingVelocity = 20.0f;
 
     [Header("Player Grounded")]
     [Tooltip("If the character is grounded or not. Not part of the CharacterController built in grounded check")]
@@ -94,6 +95,8 @@ public class ThirdPersonController : MonoBehaviour
     private float terminalVelocity = 53.0f;
     private bool rotateOnMove = true;
     private Vector3 grappleDir;
+    private bool isSliding = false;
+    private float slidingVelocity;
 
     // timeout deltatime
     private float jumpTimeoutDelta;
@@ -120,7 +123,8 @@ public class ThirdPersonController : MonoBehaviour
     private GameObject currentPlatform = null;
     private Vector3 prevPlatformPos = Vector3.zero;
     private Vector3 platformVelocity = Vector3.zero;
-    private readonly RaycastHit[] hitInfos = new RaycastHit[12];
+
+    private readonly RaycastHit[] groundHits = new RaycastHit[12];
 
     private bool IsCurrentDeviceMouse => playerInput.currentControlScheme == "KeyboardMouse";
 
@@ -162,6 +166,7 @@ public class ThirdPersonController : MonoBehaviour
         DampenVelocityMomentum();
         GroundedCheck();
         PlatformCheck();
+        SlopeCheck();
 
         if (IsGrappling)
             GrapplingMove();
@@ -196,21 +201,23 @@ public class ThirdPersonController : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// check if ground is platform, add platform velocity to movement if so
+    /// </summary>
     private void PlatformCheck()
     {
-        // check if ground is platform, add platform velocity to movement if so
         if (Grounded)
         {
-            Vector3 spherePosition = new Vector3(transform.position.x, transform.position.y + 0.4f, transform.position.z);
-            Physics.SphereCastNonAlloc(spherePosition, GroundedRadius, Vector3.down, hitInfos, 0.5f, GroundLayers, QueryTriggerInteraction.Ignore);
+            CheckGround();
 
-            for (int i = 0; i < hitInfos.Length; i++)
+            for (int i = 0; i < groundHits.Length; i++)
             {
-                if (hitInfos[i].collider == null || !hitInfos[i].collider.gameObject.CompareTag("MagicMoveable"))
+                if (groundHits[i].collider == null || !groundHits[i].collider.gameObject.CompareTag("MagicMoveable"))
                     continue; // next
+
                 if (currentPlatform == null) // We have just stepped on to the platform
                 {
-                    currentPlatform = hitInfos[i].collider.gameObject;
+                    currentPlatform = groundHits[i].collider.gameObject;
                     prevPlatformPos = currentPlatform.transform.position;
                 }
                 else // earliest second frame on platform
@@ -231,6 +238,51 @@ public class ThirdPersonController : MonoBehaviour
                 prevPlatformPos = Vector3.zero;
             }
         }
+    }
+
+    /// <summary>
+    /// check if ground is a slope, add sliding to movement if so
+    /// </summary>
+    private void SlopeCheck()
+    {
+        if (!Grounded)
+            return;
+
+        isSliding = false; // reset
+        CheckGround();
+        for (int i = 0; i < groundHits.Length; i++)
+        {
+            if (groundHits[i].collider == null)
+                continue;
+
+            float slopeAngle = Mathf.Round(Mathf.Acos(Vector3.Dot(groundHits[i].normal, Vector3.up)) * Mathf.Rad2Deg);
+            bool onSlope = slopeAngle >= controller.slopeLimit;
+
+            if (!onSlope)
+                continue;
+            else
+            {
+                isSliding = true;
+
+                //calculate a vector that runs across the slope
+                Vector3 tangent = Vector3.Cross(groundHits[i].normal, Vector3.up);
+                //from that, calculate the direction of steepest descent
+                Vector3 slideDir = Vector3.Cross(groundHits[i].normal, tangent);
+
+                this.transform.position += Time.deltaTime * -slidingVelocity * slideDir;
+                Physics.SyncTransforms();
+            }
+        }
+
+    }
+
+    /// <summary>
+    /// Does a sphere cast on the ground, saving results in groundHits
+    /// </summary>
+    private void CheckGround()
+    {
+        Vector3 spherePosition = new Vector3(transform.position.x, transform.position.y + 0.4f, transform.position.z);
+        Physics.SphereCastNonAlloc(spherePosition, GroundedRadius, Vector3.down, groundHits, 0.5f, GroundLayers, QueryTriggerInteraction.Ignore);
     }
 
     private void CameraRotation()
@@ -365,14 +417,8 @@ public class ThirdPersonController : MonoBehaviour
                 animator.SetBool(animIDFreeFall, false);
             }
 
-            // stop our velocity dropping infinitely when grounded
-            if (verticalVelocity < 0.0f)
-            {
-                verticalVelocity = -2f;
-            }
-
             // Jump, only on frame triggered
-            if (input.Jump && !input.HoldingJump && jumpTimeoutDelta <= 0.0f)
+            if (input.Jump && !input.HoldingJump && !isSliding && jumpTimeoutDelta <= 0.0f)
             {
                 // the square root of H * -2 * G = how much velocity needed to reach desired height
                 verticalVelocity = Mathf.Sqrt(jumpHeight * -2f * gravity);
@@ -419,6 +465,19 @@ public class ThirdPersonController : MonoBehaviour
         {
             verticalVelocity += gravity * Time.deltaTime;
         }
+
+        // stop our velocity dropping infinitely when grounded
+        if (Grounded && verticalVelocity < 0.0f)
+        {
+            verticalVelocity = -2f;
+        }
+
+        if (isSliding && slidingVelocity < terminalSlidingVelocity)
+        {
+            slidingVelocity += gravity * Time.deltaTime;
+        }
+        else if(slidingVelocity != -2.0f)
+            slidingVelocity = -2.0f;
     }
 
     private static float ClampAngle(float lfAngle, float lfMin, float lfMax)
