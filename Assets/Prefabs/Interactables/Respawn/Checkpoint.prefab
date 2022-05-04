@@ -139,7 +139,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b565f57b33a7577488c284f96018c60b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  affectBothPlayers: 0
+  affectBothPlayers: 1
   inactiveMaterial: {fileID: 2100000, guid: 950f9c6e16eb8c74bbbab8c6d4fa63a4, type: 2}
   activeMaterial: {fileID: 2100000, guid: 7de6f2372b0879b4ab0fe472a2a2d2dd, type: 2}
   respawnPoint: {fileID: 1309951404}
+  associatedObjectRespawner: {fileID: 0}
+  boxCollider: {fileID: 7968898010686896072}

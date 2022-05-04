@@ -1,11 +1,13 @@
-using System;
 using UnityEngine;
+using Cinemachine;
 using StarterAssets;
 #if ENABLE_INPUT_SYSTEM
 using UnityEngine.InputSystem;
 #endif
 
 /* Note: animations are called via the controller for both the character and capsule using animator null checks
+ * 
+ * TODO: make unnecessary public to private
  */
 
 [RequireComponent(typeof(CharacterController))]
@@ -84,6 +86,7 @@ public class ThirdPersonController : MonoBehaviour
     // cinemachine
     private float cinemachineTargetYaw;
     private float cinemachineTargetPitch;
+    private CinemachineVirtualCamera test;
 
     // player
     private float speed;
@@ -188,11 +191,21 @@ public class ThirdPersonController : MonoBehaviour
         animIDMotionSpeed = Animator.StringToHash("MotionSpeed");
     }
 
+    /// <summary>
+    /// Sets Grounded and saves hit results in groundHits
+    /// </summary>
     private void GroundedCheck()
     {
         // set sphere position, with offset
         Vector3 spherePosition = new Vector3(transform.position.x, transform.position.y - GroundedOffset, transform.position.z);
         Grounded = Physics.CheckSphere(spherePosition, GroundedRadius, GroundLayers, QueryTriggerInteraction.Ignore);
+
+        // get groundHits
+        if (Grounded)
+        {
+            spherePosition = new Vector3(transform.position.x, transform.position.y + 0.4f, transform.position.z);
+            Physics.SphereCastNonAlloc(spherePosition, GroundedRadius, Vector3.down, groundHits, 0.5f, GroundLayers, QueryTriggerInteraction.Ignore);
+        }
 
         // update animator if using character
         if (hasAnimator)
@@ -208,14 +221,18 @@ public class ThirdPersonController : MonoBehaviour
     {
         if (Grounded)
         {
-            CheckGround();
-
             for (int i = 0; i < groundHits.Length; i++)
             {
-                if (groundHits[i].collider == null || !groundHits[i].collider.gameObject.CompareTag("MagicMoveable"))
+                if (groundHits[i].collider == null || groundHits[i].distance <= float.Epsilon || groundHits[i].point == Vector3.zero)
                     continue; // next
 
-                if (currentPlatform == null) // We have just stepped on to the platform
+                bool isMagicMoveable = groundHits[i].collider.gameObject.CompareTag("MagicMoveable");
+                bool isRollingBall = groundHits[i].collider.gameObject.CompareTag("RollingBall");
+
+                if (!isMagicMoveable && !isRollingBall)
+                    continue;
+
+                if (currentPlatform == null) // We have just stepped on to the platform, save it and apply velocity next frame
                 {
                     currentPlatform = groundHits[i].collider.gameObject;
                     prevPlatformPos = currentPlatform.transform.position;
@@ -223,6 +240,9 @@ public class ThirdPersonController : MonoBehaviour
                 else // earliest second frame on platform
                 {
                     platformVelocity = currentPlatform.transform.position - prevPlatformPos;
+                    if (isRollingBall)
+                        platformVelocity *= 2.0f;
+
                     this.transform.position += platformVelocity;
                     Physics.SyncTransforms();
 
@@ -249,16 +269,19 @@ public class ThirdPersonController : MonoBehaviour
             return;
 
         isSliding = false; // reset
-        CheckGround();
+
         for (int i = 0; i < groundHits.Length; i++)
         {
-            if (groundHits[i].collider == null)
+            if (groundHits[i].collider == null ||
+                groundHits[i].distance <= float.Epsilon ||
+                groundHits[i].point == Vector3.zero ||
+                groundHits[i].collider.CompareTag("Respawnable"))
                 continue;
 
             float slopeAngle = Mathf.Round(Mathf.Acos(Vector3.Dot(groundHits[i].normal, Vector3.up)) * Mathf.Rad2Deg);
-            bool onSlope = slopeAngle >= controller.slopeLimit;
+            bool shouldSlide = slopeAngle >= controller.slopeLimit && slopeAngle <= 90.0f;
 
-            if (!onSlope)
+            if (!shouldSlide)
                 continue;
             else
             {
@@ -274,15 +297,6 @@ public class ThirdPersonController : MonoBehaviour
             }
         }
 
-    }
-
-    /// <summary>
-    /// Does a sphere cast on the ground, saving results in groundHits
-    /// </summary>
-    private void CheckGround()
-    {
-        Vector3 spherePosition = new Vector3(transform.position.x, transform.position.y + 0.4f, transform.position.z);
-        Physics.SphereCastNonAlloc(spherePosition, GroundedRadius, Vector3.down, groundHits, 0.5f, GroundLayers, QueryTriggerInteraction.Ignore);
     }
 
     private void CameraRotation()
