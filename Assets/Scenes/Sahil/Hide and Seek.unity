@@ -2624,11 +2624,6 @@ Transform:
   m_Father: {fileID: 251429749}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &1897752709 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 7789854717272539449, guid: 4033b5f91634ef34a855c1328bb8bba6, type: 3}
-  m_PrefabInstance: {fileID: 1456131364}
-  m_PrefabAsset: {fileID: 0}
 --- !u!4 &1971676625 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4459630973261439181, guid: 4c4496ee71bcb304db5a6017fd18c729, type: 3}
@@ -2960,14 +2955,6 @@ PrefabInstance:
       propertyPath: slider
       value: 
       objectReference: {fileID: 1062642881}
-    - target: {fileID: 114532971499887482, guid: 7eb7d6138b24db943b3b286a936dbf46, type: 3}
-      propertyPath: totalSeekTime
-      value: 3
-      objectReference: {fileID: 0}
-    - target: {fileID: 114532971499887482, guid: 7eb7d6138b24db943b3b286a936dbf46, type: 3}
-      propertyPath: hiders.Array.data[0]
-      value: 
-      objectReference: {fileID: 1897752709}
     - target: {fileID: 114532971499887483, guid: 7eb7d6138b24db943b3b286a936dbf46, type: 3}
       propertyPath: m_Name
       value: HideAndSeek
