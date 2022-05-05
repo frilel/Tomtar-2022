@@ -15,13 +15,9 @@ namespace StarterAssets
 		public bool HoldingJump { get; private set; }
 		public bool Sprint { get; private set; }
 		public bool Aim { get; private set; }
-		//public bool Fire { get; private set; }
-		//public bool HoldingFire { get; private set; }
 
 		// EVENTS
 		public UnityEvent<InputAction.CallbackContext> FireEvent;
-
-		//public InputAction.CallbackContext FireContext { get; private set; }
 
 		//[Header("Movement Settings")]
 		public bool AnalogMovement { get; private set; }
@@ -64,7 +60,6 @@ namespace StarterAssets
 				HoldingJump = true;
 			else if (Jump && context.action.phase == InputActionPhase.Canceled)
 				HoldingJump = false;
-
 		}
 
 		/// <summary>
@@ -89,12 +84,6 @@ namespace StarterAssets
 		public void OnFire(InputAction.CallbackContext context)
 		{
 			FireEvent.Invoke(context);
-			//FireInput(context.action.triggered);
-
-			//if (Fire && context.action.phase == InputActionPhase.Started)
-			//	HoldingFire = true;
-			//else if (Fire && context.action.phase == InputActionPhase.Canceled)
-			//	HoldingFire = false;
 		}
 #else
 	// old input sys if we do decide to have it (most likely wont)...
@@ -124,11 +113,6 @@ namespace StarterAssets
 		{
 			Aim = newAimState;
 		}
-
-		//public void FireInput(bool newFireState)
-		//{
-		//	Fire = newFireState;
-		//}
 
 #if !UNITY_IOS || !UNITY_ANDROID
 
