@@ -7,23 +7,24 @@ using UnityEngine.UI;
 public class HideAndSeek : MonoBehaviour
 {
     public float totalSeekTime;
-    public GameObject[] hiders;
     public LayerMask seekMask;
 
-    public UnityEvent<bool> hiddenStatusChanged;
-    public UnityEvent timeUp;
     public Slider slider;
-
-    private bool lastAnySeen = false;
     private float currentSeekTime = 0;
 
 
     // Update is called once per frame
     void Update()
     {
+        // Get both player objects
+        // TODO: probably could just be done once one player join but it's annoying to deal with that right now
+        GameObject[] hiders = {GameManager.Instance.Player1TPC?.gameObject, GameManager.Instance.Player2TPC?.gameObject}; 
+
         bool anySeen = false;
         Ray seekRay = new Ray();
         foreach(GameObject obj in hiders){
+            if(obj == null) continue; // Deals with P2 not being in game at the start
+
             seekRay.origin = obj.transform.position;
             seekRay.direction = -this.transform.up;
             if(Physics.Raycast(seekRay, out RaycastHit hit, 99f, seekMask, QueryTriggerInteraction.Collide)){
@@ -41,16 +42,24 @@ public class HideAndSeek : MonoBehaviour
         }
         currentSeekTime = Mathf.Clamp(currentSeekTime, 0, totalSeekTime);
 
-        // Check for changes in seen state
-        if(lastAnySeen != anySeen){
-            hiddenStatusChanged.Invoke(anySeen);
-        }
-        lastAnySeen = anySeen;
-
         // Update slider and check for game over
         slider.value = currentSeekTime / totalSeekTime;
         if(currentSeekTime == totalSeekTime){
-            timeUp.Invoke();
+            GameManager.Instance.Player1IC?.Respawn();
+            GameManager.Instance.Player2IC?.Respawn();
+            currentSeekTime = 0;
         }
+    }
+
+
+    void OnEnable() {
+        // Reset for new hide and seek
+        currentSeekTime = 0;
+        slider.value = 0;
+        slider.gameObject.SetActive(true);
+    }
+
+    void OnDisable() {
+        slider.gameObject.SetActive(false);
     }
 }

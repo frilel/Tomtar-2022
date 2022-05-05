@@ -109,16 +109,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d3cc5d34ebc6f4b469e6f10e4665419a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  totalSeekTime: 10
-  hiders:
-  - {fileID: 0}
+  totalSeekTime: 3
   seekMask:
     serializedVersion: 2
     m_Bits: 98305
-  hiddenStatusChanged:
-    m_PersistentCalls:
-      m_Calls: []
-  timeUp:
-    m_PersistentCalls:
-      m_Calls: []
   slider: {fileID: 0}
