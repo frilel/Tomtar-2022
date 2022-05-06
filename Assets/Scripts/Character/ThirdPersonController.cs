@@ -69,6 +69,7 @@ public class ThirdPersonController : MonoBehaviour
     public float GroundedRadius = 0.28f;
     [Tooltip("What layers the character uses as ground")]
     public LayerMask GroundLayers;
+    [SerializeField] private bool noSliding = false;
 
     [Header("Cinemachine")]
     [Tooltip("The follow target set in the Cinemachine Virtual Camera that the camera will follow")]
@@ -265,7 +266,7 @@ public class ThirdPersonController : MonoBehaviour
     /// </summary>
     private void SlopeCheck()
     {
-        if (!Grounded)
+        if (!Grounded || noSliding)
             return;
 
         isSliding = false; // reset
