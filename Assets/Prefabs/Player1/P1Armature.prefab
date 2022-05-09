@@ -2156,12 +2156,14 @@ MonoBehaviour:
   maxVelocityMomentum: 1
   JumpTimeout: 0.3
   FallTimeout: 0.15
+  terminalSlidingVelocity: 20
   Grounded: 1
   GroundedOffset: -0.14
   GroundedRadius: 0.28
   GroundLayers:
     serializedVersion: 2
     m_Bits: 98305
+  noSliding: 1
   CinemachineCameraTarget: {fileID: 3338909986037700322}
   TopClamp: 70
   BottomClamp: -30

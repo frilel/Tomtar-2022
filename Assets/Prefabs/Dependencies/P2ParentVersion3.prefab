@@ -507,6 +507,18 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 771404012044428464}
     - target: {fileID: 8860540657413805353, guid: 928c28adcbef94041982b01b120df298, type: 3}
+      propertyPath: surfacesToHit.m_Bits
+      value: 131073
+      objectReference: {fileID: 0}
+    - target: {fileID: 8860540657413805353, guid: 928c28adcbef94041982b01b120df298, type: 3}
+      propertyPath: blockingSurfaces.m_Bits
+      value: 98305
+      objectReference: {fileID: 0}
+    - target: {fileID: 8860540657413805353, guid: 928c28adcbef94041982b01b120df298, type: 3}
+      propertyPath: conjurableSurface.m_Bits
+      value: 131073
+      objectReference: {fileID: 0}
+    - target: {fileID: 8860540657413805353, guid: 928c28adcbef94041982b01b120df298, type: 3}
       propertyPath: objectsInInventory.Array.size
       value: 2
       objectReference: {fileID: 0}

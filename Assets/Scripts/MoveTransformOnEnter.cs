@@ -6,8 +6,6 @@ using UnityEngine;
 [RequireComponent(typeof(Collider))]
 public class MoveTransformOnEnter : MonoBehaviour
 {
-    // TODO: Enable varying movements, such as true linear speed
-
     [SerializeField] private bool affectPlayer1 = true;
     [SerializeField] private bool affectPlayer2 = true;
     [SerializeField] private bool affectOtherColliders = false;
@@ -18,18 +16,12 @@ public class MoveTransformOnEnter : MonoBehaviour
     [SerializeField] private Transform endPoint;
     [SerializeField] private GameObject objectToMove;
     [SerializeField] private float translationSpeed = 1.0f;
-    //[SerializeField] private bool linearSpeed = true; // TODO
-
-    // Lerp
-    //private float lerpDuration = 3;
-    //private float startValue = 0;
-    //private float endValue = 10;
-    //float valueToLerp;
+    [SerializeField] private bool linearSpeed = true;
 
     private Vector3 startPos;
     private Renderer rend;
     private bool activated = false;
-    private GameObject activator = null;
+    private GameObject entityInteracting = null;
 
     private void Start()
     {
@@ -50,47 +42,55 @@ public class MoveTransformOnEnter : MonoBehaviour
 
     private void OnTriggerStay(Collider other)
     {
+        
         if ((affectPlayer1 && other.gameObject.CompareTag("Player1")) || (affectPlayer2 && other.gameObject.CompareTag("Player2")) || affectOtherColliders)
         {
-            MoveToEndpoint();
-            activator = other.gameObject;
+            if (activated)
+                MoveToEndpoint();
+            else
+            {
+                entityInteracting = other.gameObject;
+                activated = true;
+            }
         }
     }
 
     private void OnTriggerExit(Collider other)
     {
-        if (other.gameObject == activator)
+        if (other.gameObject == entityInteracting)
         {
+            entityInteracting = null;
             activated = false;
-            activator = null;
         }
     }
 
     private void MoveToEndpoint()
     {
-        if (!activated)
-        {
+        if (HasReachedTarget(endPoint.transform.position))
+            return;
+
+        if (rend.material != activeMaterial)
             rend.material = activeMaterial;
-            activated = true;
-        }
-        objectToMove.transform.position = Vector3.Lerp(objectToMove.transform.position, endPoint.position, translationSpeed * Time.deltaTime);
+
+        if (linearSpeed)
+            objectToMove.transform.position = Vector3.MoveTowards(objectToMove.transform.position, endPoint.position, translationSpeed * Time.deltaTime);
+        else
+            objectToMove.transform.position = Vector3.Lerp(objectToMove.transform.position, endPoint.position, translationSpeed * Time.deltaTime);
     }
 
     private void MoveToStartpos()
     {
-        rend.material = inactiveMaterial;
-        objectToMove.transform.position = Vector3.Lerp(objectToMove.transform.position, startPos, translationSpeed * Time.deltaTime);
+        if (HasReachedTarget(startPos))
+            return;
+
+        if (rend.material != inactiveMaterial)
+            rend.material = inactiveMaterial;
+
+        if (linearSpeed)
+            objectToMove.transform.position = Vector3.MoveTowards(objectToMove.transform.position, startPos, translationSpeed * Time.deltaTime);
+        else
+            objectToMove.transform.position = Vector3.Lerp(objectToMove.transform.position, startPos, translationSpeed * Time.deltaTime);
     }
 
-    //IEnumerator Lerp()
-    //{
-    //    float timeElapsed = 0;
-    //    while (timeElapsed < lerpDuration)
-    //    {
-    //        valueToLerp = Mathf.Lerp(startValue, endValue, timeElapsed / lerpDuration);
-    //        timeElapsed += Time.deltaTime;
-    //        yield return null;
-    //    }
-    //    valueToLerp = endValue;
-    //}
+    private bool HasReachedTarget(Vector3 target) => (target - objectToMove.transform.position).sqrMagnitude < 0.001f;
 }
