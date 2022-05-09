@@ -15,7 +15,8 @@ public class ConjureGrappableController : MonoBehaviour
     [SerializeField] private float scaleAtSurface = 1.5f;
 
     [SerializeField] private Transform mainCamera;
-    [SerializeField] private LayerMask conjurableSurface;
+    [SerializeField] private LayerMask surfacesToHit;
+    [SerializeField] private LayerMask blockingSurfaces;
 
     private StarterAssetsInputs input;
     private int counter = 0;
@@ -66,13 +67,15 @@ public class ConjureGrappableController : MonoBehaviour
 
     private void ThrowGrappable()
     {
-        RaycastHit hit;
-        if (Physics.Raycast(mainCamera.position, mainCamera.forward, out hit, maxDistance, conjurableSurface))
+        if (Physics.Raycast(mainCamera.position, mainCamera.forward, out RaycastHit hit, maxDistance, surfacesToHit))
         {
+            bool isBlocked = (blockingSurfaces.value & (1 << hit.transform.gameObject.layer)) > 0;
+            if (isBlocked)
+                return;
+
             GrappableThrowObject thrown = objectsInInventory[0];
             objectsInInventory.RemoveAt(0);
             objectsThrown.Add(thrown);
-
 
             Vector3 translatePos = hit.point + (hit.normal * scaleAtSurface * 0.1f);
             thrown.Throw(translatePos, hit.transform.rotation, new Vector3(scaleAtSurface, scaleAtSurface, scaleAtSurface));

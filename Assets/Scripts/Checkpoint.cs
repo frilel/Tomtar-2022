@@ -4,12 +4,16 @@ public class Checkpoint : MonoBehaviour
 {
     [Tooltip("Whether this checkpoint will be set for each player individually or not.")]
     [SerializeField] private bool affectBothPlayers = false;
-    [Tooltip("Assign the material for displaying inactive checkpoint")]
+    [Tooltip("The material for displaying inactive checkpoint")]
     [SerializeField] private Material inactiveMaterial;
-    [Tooltip("Assign the material for displaying active checkpoint")]
+    [Tooltip("The material for displaying active checkpoint")]
     [SerializeField] private Material activeMaterial;
     [SerializeField] private Transform respawnPoint;
 
+    [Header("Respawning Objects")]
+    [Tooltip("The object respawner that should be active when this checkpoint is active, only activates on checkpoints marked 'affectBothPlayers'")]
+    [SerializeField] private ObjectRespawner associatedObjectRespawner = null;
+    
     private Renderer rend;
 
     private void Start()
@@ -29,6 +33,7 @@ public class Checkpoint : MonoBehaviour
         {
             GameManager.Instance.Player1IC?.SetCurrentCheckpoint(this);
             GameManager.Instance.Player2IC?.SetCurrentCheckpoint(this);
+            GameManager.Instance.SetCurrentObjectRespawner(associatedObjectRespawner);
         }
         else if (other.gameObject.CompareTag("Player1"))
             GameManager.Instance.Player1IC.SetCurrentCheckpoint(this);
@@ -42,4 +47,5 @@ public class Checkpoint : MonoBehaviour
     {
         rend.material = inactiveMaterial;
     }
+
 }

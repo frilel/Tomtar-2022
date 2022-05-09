@@ -12,6 +12,10 @@ public class Deadzone : MonoBehaviour
         {
             GameManager.Instance.Player2IC.Respawn();
         }
+        else if (other.gameObject.CompareTag("Respawnable"))
+        {
+            GameManager.Instance.CurrentObjectRespawner.Respawn(other.gameObject);
+        }
     }
 
 }

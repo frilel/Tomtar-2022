@@ -2040,12 +2040,14 @@ MonoBehaviour:
   maxVelocityMomentum: 1
   JumpTimeout: 0.3
   FallTimeout: 0.15
+  terminalSlidingVelocity: 20
   Grounded: 1
   GroundedOffset: -0.14
   GroundedRadius: 0.28
   GroundLayers:
     serializedVersion: 2
     m_Bits: 229377
+  noSliding: 1
   CinemachineCameraTarget: {fileID: 2236798171815416204}
   TopClamp: 70
   BottomClamp: -30
@@ -2296,15 +2298,14 @@ MonoBehaviour:
   throwOrigins:
   - {fileID: 8895446328254459318}
   - {fileID: 5517516269235611021}
-  throwObjects:
-  - {fileID: 3595699868499604269}
-  - {fileID: 1655453094657917134}
+  objectsInInventory: []
   maxDistance: 100
+  scaleAtOrigin: 0.1
+  scaleAtSurface: 1.5
   mainCamera: {fileID: 0}
   conjurableSurface:
     serializedVersion: 2
     m_Bits: 131072
-  player: {fileID: 5907789379324668124}
 --- !u!1 &5941891365926362251
 GameObject:
   m_ObjectHideFlags: 0
