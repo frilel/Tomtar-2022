@@ -69,7 +69,7 @@ public class ThirdPersonController : MonoBehaviour
     public float GroundedRadius = 0.28f;
     [Tooltip("What layers the character uses as ground")]
     public LayerMask GroundLayers;
-    [SerializeField] private bool noSliding = false;
+    [SerializeField] private bool disableSliding = true;
 
     [Header("Cinemachine")]
     [Tooltip("The follow target set in the Cinemachine Virtual Camera that the camera will follow")]
@@ -87,7 +87,6 @@ public class ThirdPersonController : MonoBehaviour
     // cinemachine
     private float cinemachineTargetYaw;
     private float cinemachineTargetPitch;
-    private CinemachineVirtualCamera test;
 
     // player
     private float speed;
@@ -129,6 +128,7 @@ public class ThirdPersonController : MonoBehaviour
     private Vector3 platformVelocity = Vector3.zero;
 
     private readonly RaycastHit[] groundHits = new RaycastHit[12];
+    float cameraRotationTime = 0f;
 
     private bool IsCurrentDeviceMouse => playerInput.currentControlScheme == "KeyboardMouse";
 
@@ -266,7 +266,7 @@ public class ThirdPersonController : MonoBehaviour
     /// </summary>
     private void SlopeCheck()
     {
-        if (!Grounded || noSliding)
+        if (!Grounded || disableSliding)
             return;
 
         isSliding = false; // reset
@@ -308,9 +308,34 @@ public class ThirdPersonController : MonoBehaviour
             //Don't multiply mouse input by Time.deltaTime;
             float deltaTimeMultiplier = IsCurrentDeviceMouse ? 1.0f : Time.deltaTime;
 
-            cinemachineTargetYaw += input.Look.x * deltaTimeMultiplier;
-            cinemachineTargetPitch += input.Look.y * deltaTimeMultiplier;
+            if (!IsCurrentDeviceMouse)
+            {
+                float xVal = EaseInQuad(cameraRotationTime, input.Look.x * 0.25f, input.Look.x, 0.5f);
+                float yVal = EaseInQuad(cameraRotationTime, input.Look.y * 0.25f, input.Look.y, 0.5f);
+
+                if(input.Look.x < 0f)
+                    xVal = Mathf.Clamp(xVal, input.Look.x, 0f);
+                else
+                    xVal = Mathf.Clamp(xVal, 0f, input.Look.x);
+
+                if(input.Look.y < 0f)
+                    yVal = Mathf.Clamp(yVal, input.Look.y, 0f);
+                else
+                    yVal = Mathf.Clamp(yVal, 0f, input.Look.y);
+
+                cinemachineTargetYaw += xVal * deltaTimeMultiplier;
+                cinemachineTargetPitch += yVal * deltaTimeMultiplier;
+
+                cameraRotationTime += Time.deltaTime;
+            }
+            else
+            {
+                cinemachineTargetYaw += input.Look.x * deltaTimeMultiplier;
+                cinemachineTargetPitch += input.Look.y * deltaTimeMultiplier;
+            }
         }
+        else
+            cameraRotationTime = 0f;
 
         // clamp our rotations so our values are limited 360 degrees
         cinemachineTargetYaw = ClampAngle(cinemachineTargetYaw, float.MinValue, float.MaxValue);
@@ -318,6 +343,20 @@ public class ThirdPersonController : MonoBehaviour
 
         // Cinemachine will follow this target
         CinemachineCameraTarget.transform.rotation = Quaternion.Euler(cinemachineTargetPitch + CameraAngleOverride, cinemachineTargetYaw, 0.0f);
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="t">current time</param>
+    /// <param name="b">start value</param>
+    /// <param name="c">change value</param>
+    /// <param name="d">duration</param>
+    /// <returns></returns>
+    private float EaseInQuad(float t, float b, float c, float d)
+    {
+        t /= d;
+        return c * t * t + b;
     }
 
     private void DampenVelocityMomentum()

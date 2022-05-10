@@ -239,6 +239,17 @@
                 },
                 {
                     "name": "",
+                    "id": "475a36b5-9a81-4bb1-afb2-383cd0c96f66",
+                    "path": "<Gamepad>/leftStick/down",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Gamepad",
+                    "action": "Sprint",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
                     "id": "9cc81599-6cd8-4e9a-9a8c-b252c7fd90be",
                     "path": "<Mouse>/rightButton",
                     "interactions": "",
@@ -560,6 +571,17 @@
                     "processors": "",
                     "groups": "Gamepad",
                     "action": "Fire",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "9bd2b33e-9f79-471a-b351-4a4a62926027",
+                    "path": "<Gamepad>/leftStick/down",
+                    "interactions": "Hold",
+                    "processors": "",
+                    "groups": "Gamepad",
+                    "action": "Sprint",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
