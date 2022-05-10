@@ -48,7 +48,7 @@ public class PlayerAimController : MonoBehaviour
                 defaultCamera.SetActive(true);
                 aimCamera.SetActive(false);
                 moveController.SetRotateOnMove(true);
-                reticleCanvas.gameObject.SetActive(true);
+                reticleCanvas.gameObject.SetActive(false);
             }
         }
     }
