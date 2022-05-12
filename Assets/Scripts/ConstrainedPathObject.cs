@@ -11,21 +11,32 @@ public class ConstrainedPathObject : MonoBehaviour
         StopAtStartEnd,
     };
     public StopTypeOptions StopType;
-    public bool loop;
     public float speed;
     public bool stopped;
 
     public LineRenderer lineRenderer;
     public Transform path;
     public Transform obj;
+
     private float pointInterpolator = 0f;
     private int maxIndex;
     private int direction = 1; // 1 is forwards, -1 is backwards
+    private float destination = -1f;
+
+
+    /* MagicMoveable parameters */
+    // (hardcoded b/c they should be the same for all objects)
+    private const float aimThreshold = 0.2f; // Aiming within this distance of the path will latch to it
+    private const float magicSpeed = 5f;
     
 
     // Start is called before the first frame update
     void Start()
     {
+        if (path.childCount == 1) {
+            Debug.LogWarning("ConstrainedPathObject with insufficient Path nodes: " + this.name);
+        }
+
         maxIndex = path.childCount - 1;
         lineRenderer = GetComponentInChildren<LineRenderer>();
         ResetLineRenderer();
@@ -34,9 +45,31 @@ public class ConstrainedPathObject : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (!stopped) {
+        if (destination >= 0){
+            // We have a target destination, move towards it
+            int pointIndex = Mathf.FloorToInt(pointInterpolator) % maxIndex;
+
+            Vector3 start = GetPosition(pointIndex);
+            Vector3 end = GetPosition(pointIndex+1);
+
+            // Increase lerp value relative to the distance between points to keep the speed consistent.
+            pointInterpolator += direction * magicSpeed * Time.deltaTime / Vector3.Distance(start, end);
+            
+            // Check if reached destination
+            if (direction == 1 && pointInterpolator >= destination){
+                pointInterpolator = destination;
+                destination = -1;
+            } else if (direction == -1 && pointInterpolator <= destination) {
+                pointInterpolator = destination;
+                destination = -1;
+            }
+            
+            // Move smoothly to next point
+            obj.position = Vector3.Lerp(start, end, pointInterpolator-pointIndex);
+        }
+        else if (!stopped) {
             if (pointInterpolator > maxIndex || pointInterpolator < 0){
-                pointInterpolator = loop ? Mathf.Clamp(pointInterpolator, 0, maxIndex) : 0;
+                pointInterpolator = Mathf.Clamp(pointInterpolator, 0, maxIndex);
                 switch (StopType){
                     case StopTypeOptions.StopAtEnd:
                         if (direction == 1) stopped = true;
@@ -64,16 +97,37 @@ public class ConstrainedPathObject : MonoBehaviour
     }
 
     public void MoveByAim(Ray ray)
-    {
+    {       
         // Get point closest to ray segment-by-segment and choose the best
         float minError = float.PositiveInfinity;
+        float minDepth = float.PositiveInfinity;
+        bool usingDepth = false;
         for(int i = 0; i < path.childCount - 1; i++){
             Vector3 start = GetPosition(i);
             Vector3 end = GetPosition(i+1);
-            if (ClosestPoint(ray, start, end, out Vector3 point, out float error)) {
-                if (error < minError){
-                    minError = error;
-                    obj.position = point;
+            if (ClosestPoint(ray, start, end, out Vector3 point, out float tAlongSegment, out float error, out float depth)) {
+                // TODO: Should aimThreshold be in screen space and not world space so that
+                //  the threshold isn't effectively larger for closer objects? Screen space might
+                //  be more intuitive, but current setup does further aid the idea that you'll tend
+                //  to be aiming for the closer thing
+                
+                // Within threshold, choose based on depth
+                bool betterDepth = error < aimThreshold*aimThreshold && depth < minDepth;
+                if (betterDepth) usingDepth = true;
+
+                // If we haven't had points within threshold, keep using distance
+                bool betterDistance = !usingDepth && error < minError;
+                
+                if (betterDistance) minError = error;
+                if (betterDepth) minDepth = depth;
+                if (betterDistance || betterDepth){
+                    destination = i + tAlongSegment;
+                    direction = (int)Mathf.Sign(destination - pointInterpolator);
+                    Vector3 intersection = ray.GetPoint(depth);
+
+                    // Debug lines to show aim decision making
+                    // Debug.DrawLine(intersection, point, Color.red, Time.deltaTime);
+                    // Debug.DrawRay(point, (intersection - point).normalized * aimThreshold, Color.green, Time.deltaTime);
                 }
             }
         }
@@ -88,7 +142,7 @@ public class ConstrainedPathObject : MonoBehaviour
      * USAGE: Used internally to position the element along it's constrained path via an aim ray. missSqrDistance is used to
      *      rate the quality of this closest point when compared against other line segments which are part of the path
      */
-    bool ClosestPoint(Ray ray, Vector3 segStart, Vector3 segEnd, out Vector3 closestPoint, out float missSqrDistance)
+    bool ClosestPoint(Ray ray, Vector3 segStart, Vector3 segEnd, out Vector3 closestPoint, out float tAlongSegment, out float missSqrDistance, out float rayLength)
     {
         // Create a plane which contains the segment and is perpendicular to ray.direction
         Vector3 segDir = segEnd - segStart;
@@ -101,18 +155,24 @@ public class ConstrainedPathObject : MonoBehaviour
             Vector3 offset = Vector3.Project(intersection - segStart, segDir);
             if (Vector3.Dot(offset, segDir) < 0){
                 closestPoint = segStart;
+                tAlongSegment = 0;
             } else if (offset.sqrMagnitude > segDir.sqrMagnitude) {
                 closestPoint = segEnd;
+                tAlongSegment = 1;
             } else {
                 closestPoint = segStart + offset;
+                tAlongSegment = offset.magnitude / Vector3.Distance(segStart, segEnd);
             }
 
             missSqrDistance = (intersection - closestPoint).sqrMagnitude;
+            rayLength = t;
             return true;
         }
 
         closestPoint = Vector3.zero;
+        tAlongSegment = -1;
         missSqrDistance = float.PositiveInfinity;
+        rayLength = float.PositiveInfinity;
         return false; 
     }
 
