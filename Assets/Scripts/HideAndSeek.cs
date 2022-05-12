@@ -6,36 +6,28 @@ using UnityEngine.UI;
 
 public class HideAndSeek : MonoBehaviour
 {
-    public float totalSeekTime;
-    public LayerMask seekMask;
+    [SerializeField]
+    private float totalSeekTime;
 
-    public Slider slider;
+    [SerializeField]
+    private LayerMask seekMask;
+
+    [SerializeField]
+    private Slider slider;
+    
+    private BoxCollider[] seekPlanes;
     private float currentSeekTime = 0;
+
+    void Start(){
+        seekPlanes = GetComponentsInChildren<BoxCollider>();
+    }
 
 
     // Update is called once per frame
     void Update()
     {
-        // Get both player objects
-        // TODO: probably could just be done once one player join but it's annoying to deal with that right now
-        GameObject[] hiders = {GameManager.Instance.Player1TPC?.gameObject, GameManager.Instance.Player2TPC?.gameObject}; 
-
-        bool anySeen = false;
-        Ray seekRay = new Ray();
-        foreach(GameObject obj in hiders){
-            if(obj == null) continue; // Deals with P2 not being in game at the start
-
-            seekRay.origin = obj.transform.position;
-            seekRay.direction = -this.transform.up;
-            if(Physics.Raycast(seekRay, out RaycastHit hit, 99f, seekMask, QueryTriggerInteraction.Collide)){
-                if(hit.collider.gameObject == this.gameObject){
-                    anySeen = true;
-                }
-            }
-        }
-
         // Adjust seek time and keep in normal range
-        if(anySeen){
+        if(AnyVisible()){
             currentSeekTime += Time.deltaTime;
         } else {
             currentSeekTime -= Time.deltaTime;
@@ -49,6 +41,36 @@ public class HideAndSeek : MonoBehaviour
             GameManager.Instance.Player2IC?.Respawn();
             currentSeekTime = 0;
         }
+    }
+
+
+    private bool AnyVisible(){
+        // Get both player objects
+        // TODO: probably could just be done once one player join but it's annoying to deal with that right now
+        GameObject[] hiders = {
+            GameManager.Instance.Player1TPC?.transform.Find("PlayerCameraRoot").gameObject,
+            GameManager.Instance.Player2TPC?.transform.Find("PlayerCameraRoot").gameObject,
+        };
+
+        Ray seekRay = new Ray();
+        foreach(BoxCollider box in seekPlanes){
+            if(!box.gameObject.activeInHierarchy) continue;
+
+            foreach(GameObject obj in hiders){
+                if(obj == null) continue; // Deals with P2 not being in game at the start
+
+                seekRay.origin = obj.transform.position;
+                seekRay.direction = -box.transform.up;
+                if(!Physics.Raycast(seekRay, out RaycastHit hit, 99f, seekMask, QueryTriggerInteraction.Collide)) continue;
+                
+                if(hit.collider == box){
+                    Debug.DrawLine(seekRay.origin, hit.point, Color.red, Time.deltaTime);
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
 
