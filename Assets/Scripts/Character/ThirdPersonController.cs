@@ -518,4 +518,8 @@ public class ThirdPersonController : MonoBehaviour
     {
         rotateOnMove = newRotateOnMove;
     }
+
+    public bool IsSprinting(){
+        return input.Sprint;
+    }
 }

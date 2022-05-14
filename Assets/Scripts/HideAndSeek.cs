@@ -10,6 +10,9 @@ public class HideAndSeek : MonoBehaviour
     private float totalSeekTime;
 
     [SerializeField]
+    private float sprintMultiplier;
+
+    [SerializeField]
     private LayerMask seekMask;
 
     [SerializeField]
@@ -26,9 +29,17 @@ public class HideAndSeek : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        ThirdPersonController p1 = GameManager.Instance.Player1TPC;
+        ThirdPersonController p2 = GameManager.Instance.Player2TPC;
+
         // Adjust seek time and keep in normal range
+        float seekDelta = Time.deltaTime;
+        if ((p1 != null && p1.IsSprinting()) || (p2 != null && p2.IsSprinting())) {
+            seekDelta *= sprintMultiplier;
+        }
+
         if(AnyVisible()){
-            currentSeekTime += Time.deltaTime;
+            currentSeekTime += seekDelta;
         } else {
             currentSeekTime -= Time.deltaTime;
         }

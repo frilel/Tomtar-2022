@@ -39,12 +39,13 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 114532971499887483}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d3cc5d34ebc6f4b469e6f10e4665419a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  totalSeekTime: 3
+  totalSeekTime: 5
+  sprintMultiplier: 2
   seekMask:
     serializedVersion: 2
     m_Bits: 491521
