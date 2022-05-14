@@ -327,14 +327,6 @@ PrefabInstance:
       propertyPath: aimMask.m_Bits
       value: 229377
       objectReference: {fileID: 0}
-    - target: {fileID: 6962613148855431090, guid: f9fa08668b90f9c45827319333a10c0b, type: 3}
-      propertyPath: disableSliding
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 6962613148855431090, guid: f9fa08668b90f9c45827319333a10c0b, type: 3}
-      propertyPath: GroundLayers.m_Bits
-      value: 229377
-      objectReference: {fileID: 0}
     - target: {fileID: 6962613148855431093, guid: f9fa08668b90f9c45827319333a10c0b, type: 3}
       propertyPath: m_Camera
       value: 

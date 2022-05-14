@@ -127,7 +127,9 @@ public class ThirdPersonController : MonoBehaviour
     private Vector3 prevPlatformPos = Vector3.zero;
     private Vector3 platformVelocity = Vector3.zero;
 
-    private readonly RaycastHit[] groundHits = new RaycastHit[12];
+    private RaycastHit[] groundHitsBuffer = new RaycastHit[12];
+    private RaycastHit emptyHit = new RaycastHit();
+
     float cameraRotationTime = 0f;
 
     private bool IsCurrentDeviceMouse => playerInput.currentControlScheme == "KeyboardMouse";
@@ -144,6 +146,7 @@ public class ThirdPersonController : MonoBehaviour
         hasAnimator = TryGetComponent(out animator);
         controller = GetComponent<CharacterController>();
         input = GetComponent<StarterAssetsInputs>();
+        input.PauseEvent.AddListener(OnPause);
 
 
         playerInput = GetComponent<PlayerInput>();
@@ -183,6 +186,11 @@ public class ThirdPersonController : MonoBehaviour
         CameraRotation();
     }
 
+    private void OnDestroy()
+    {
+        input.PauseEvent.RemoveListener(OnPause);
+    }
+
     private void AssignAnimationIDs()
     {
         animIDSpeed = Animator.StringToHash("Speed");
@@ -204,8 +212,12 @@ public class ThirdPersonController : MonoBehaviour
         // get groundHits
         if (Grounded)
         {
+            // reset groundHitsBuffer
+            for (int i = 0; i < groundHitsBuffer.Length; i++)
+                groundHitsBuffer[i] = emptyHit;
+
             spherePosition = new Vector3(transform.position.x, transform.position.y + 0.4f, transform.position.z);
-            Physics.SphereCastNonAlloc(spherePosition, GroundedRadius, Vector3.down, groundHits, 0.5f, GroundLayers, QueryTriggerInteraction.Ignore);
+            Physics.SphereCastNonAlloc(spherePosition, GroundedRadius, Vector3.down, groundHitsBuffer, 0.5f, GroundLayers, QueryTriggerInteraction.Ignore);
         }
 
         // update animator if using character
@@ -220,29 +232,34 @@ public class ThirdPersonController : MonoBehaviour
     /// </summary>
     private void PlatformCheck()
     {
+        bool isOnPlatform = false;
+
         if (Grounded)
         {
-            for (int i = 0; i < groundHits.Length; i++)
+            for (int i = 0; i < groundHitsBuffer.Length; i++)
             {
-                if (groundHits[i].collider == null || groundHits[i].distance <= float.Epsilon || groundHits[i].point == Vector3.zero)
-                    continue; // next
+                if (groundHitsBuffer[i].collider == null ||
+                    groundHitsBuffer[i].distance < float.Epsilon ||
+                    groundHitsBuffer[i].point == Vector3.zero)
+                    continue;
 
-                bool isMagicMoveable = groundHits[i].collider.gameObject.CompareTag("MagicMoveable");
-                bool isRollingBall = groundHits[i].collider.gameObject.CompareTag("RollingBall");
+                bool isMagicMoveable = groundHitsBuffer[i].collider.gameObject.CompareTag("MagicMoveable");
+                bool isRollingBall = groundHitsBuffer[i].collider.gameObject.CompareTag("RollingBall");
 
                 if (!isMagicMoveable && !isRollingBall)
                     continue;
 
-                if (currentPlatform == null) // We have just stepped on to the platform, save it and apply velocity next frame
+                isOnPlatform = true;
+
+                if (currentPlatform == null) // first frame on platform
                 {
-                    currentPlatform = groundHits[i].collider.gameObject;
+                    currentPlatform = groundHitsBuffer[i].collider.gameObject;
                     prevPlatformPos = currentPlatform.transform.position;
                 }
                 else // earliest second frame on platform
                 {
                     platformVelocity = currentPlatform.transform.position - prevPlatformPos;
-                    if (isRollingBall)
-                        platformVelocity *= 2.0f;
+                    if (isRollingBall) platformVelocity *= 2.0f; // get pushed off rolling ball
 
                     this.transform.position += platformVelocity;
                     Physics.SyncTransforms();
@@ -250,8 +267,14 @@ public class ThirdPersonController : MonoBehaviour
                     prevPlatformPos = currentPlatform.transform.position;
                 }
             }
+            // iterated thru all but is not on platform
+            if (!isOnPlatform && currentPlatform != null)
+            {
+                currentPlatform = null;
+                prevPlatformPos = Vector3.zero;
+            }
         }
-        else
+        else // not grounded
         {
             if (currentPlatform != null)
             {
@@ -269,29 +292,29 @@ public class ThirdPersonController : MonoBehaviour
         if (!Grounded || disableSliding)
             return;
 
-        isSliding = false; // reset
+        isSliding = false;
 
-        for (int i = 0; i < groundHits.Length; i++)
+        for (int i = 0; i < groundHitsBuffer.Length; i++)
         {
-            if (groundHits[i].collider == null ||
-                groundHits[i].distance <= float.Epsilon ||
-                groundHits[i].point == Vector3.zero ||
-                groundHits[i].collider.CompareTag("Respawnable"))
+            if (groundHitsBuffer[i].collider == null ||
+                groundHitsBuffer[i].distance < float.Epsilon ||
+                groundHitsBuffer[i].point == Vector3.zero ||
+                groundHitsBuffer[i].collider.CompareTag("Respawnable"))
                 continue;
 
-            float slopeAngle = Mathf.Round(Mathf.Acos(Vector3.Dot(groundHits[i].normal, Vector3.up)) * Mathf.Rad2Deg);
-            bool shouldSlide = slopeAngle >= controller.slopeLimit && slopeAngle <= 90.0f;
+            float slopeAngle = Mathf.Round(Mathf.Acos(Vector3.Dot(groundHitsBuffer[i].normal, Vector3.up)) * Mathf.Rad2Deg);
+            bool shouldSlide = slopeAngle >= controller.slopeLimit && slopeAngle < 90.0f;
 
             if (!shouldSlide)
                 continue;
             else
             {
                 isSliding = true;
-
+                Debug.Log("here");
                 //calculate a vector that runs across the slope
-                Vector3 tangent = Vector3.Cross(groundHits[i].normal, Vector3.up);
+                Vector3 tangent = Vector3.Cross(groundHitsBuffer[i].normal, Vector3.up);
                 //from that, calculate the direction of steepest descent
-                Vector3 slideDir = Vector3.Cross(groundHits[i].normal, tangent);
+                Vector3 slideDir = Vector3.Cross(groundHitsBuffer[i].normal, tangent);
 
                 this.transform.position += Time.deltaTime * -slidingVelocity * slideDir;
                 Physics.SyncTransforms();
@@ -345,9 +368,6 @@ public class ThirdPersonController : MonoBehaviour
         CinemachineCameraTarget.transform.rotation = Quaternion.Euler(cinemachineTargetPitch + CameraAngleOverride, cinemachineTargetYaw, 0.0f);
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
     /// <param name="t">current time</param>
     /// <param name="b">start value</param>
     /// <param name="c">change value</param>
@@ -560,5 +580,11 @@ public class ThirdPersonController : MonoBehaviour
 
     public bool IsSprinting(){
         return input.Sprint;
+    }
+
+    private void OnPause(InputAction.CallbackContext context)
+    {
+        GameManager.Instance.TogglePause();
+        LockCameraPosition = GameManager.Instance.GameIsPaused;
     }
 }
