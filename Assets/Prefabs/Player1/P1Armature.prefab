@@ -2154,7 +2154,7 @@ MonoBehaviour:
   momentumExtraPushup: 2
   momentumDrag: 0.01
   maxVelocityMomentum: 1
-  JumpTimeout: 0.3
+  JumpTimeout: 0.1
   FallTimeout: 0.15
   terminalSlidingVelocity: 20
   Grounded: 1
@@ -2162,8 +2162,8 @@ MonoBehaviour:
   GroundedRadius: 0.28
   GroundLayers:
     serializedVersion: 2
-    m_Bits: 98305
-  noSliding: 1
+    m_Bits: 229377
+  disableSliding: 1
   CinemachineCameraTarget: {fileID: 3338909986037700322}
   TopClamp: 70
   BottomClamp: -30
@@ -2386,6 +2386,38 @@ MonoBehaviour:
         m_CallState: 2
     m_ActionId: ec17caa6-0077-411f-bf6a-bbca1adf50d7
     m_ActionName: Player2/Fire[/Mouse/leftButton,/XInputControllerWindows/rightTrigger]
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 6633367842012738501}
+        m_TargetAssemblyTypeName: StarterAssets.StarterAssetsInputs, Assembly-CSharp
+        m_MethodName: OnPause
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 1c6e8db2-6112-4c67-9f66-c5127cb65683
+    m_ActionName: Player1/Pause[/Keyboard/escape,/XInputControllerWindows/start]
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 6633367842012738501}
+        m_TargetAssemblyTypeName: StarterAssets.StarterAssetsInputs, Assembly-CSharp
+        m_MethodName: OnFire
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: da8f65a5-5841-463b-afb0-a7b6d09d82f6
+    m_ActionName: Player2/Pause[/Keyboard/escape,/XInputControllerWindows/start]
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: Player2
@@ -2421,6 +2453,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   FireEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  PauseEvent:
     m_PersistentCalls:
       m_Calls: []
 --- !u!114 &6767847125148247797
@@ -2473,7 +2508,7 @@ MonoBehaviour:
   grappableLayer:
     serializedVersion: 2
     m_Bits: 65536
-  maxDistance: 100
+  maxDistance: 30
   player: {fileID: 6962613148855431090}
   grappleTransform: {fileID: 1842308242292706600}
 --- !u!1 &7038030796318373226

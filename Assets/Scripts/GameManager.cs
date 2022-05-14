@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Events;
 using StarterAssets;
 #if ENABLE_INPUT_SYSTEM && STARTER_ASSETS_PACKAGES_CHECKED
 using UnityEngine.InputSystem;
@@ -9,28 +10,65 @@ public class GameManager : MonoBehaviour
     public static GameManager Instance { get; private set; }
     public PlayerInteractionController Player1IC { get; private set; }
     public PlayerInteractionController Player2IC { get; private set; }
-    public ThirdPersonController Player1TPC { get; set; }
+    public ThirdPersonController Player1TPC { get; private set; }
     public ThirdPersonController Player2TPC { get; private set; }
     public ObjectRespawner CurrentObjectRespawner { get; private set; }
+    public bool GameIsPaused { get; private set; } = false;
 
+    [SerializeField] GameObject inGameMenu;
     private Checkpoint[] sceneCheckpoints;
     private PlayerInputManager playerInputManager;
 
     private void Awake()
     {
-        if (Instance == null)
-            Instance = this;
+        if (Instance == null) Instance = this;
     }
     private void Start()
     {
         sceneCheckpoints = FindObjectsOfType<Checkpoint>();
         playerInputManager = FindObjectOfType<PlayerInputManager>();
         playerInputManager.onPlayerJoined += OnPlayerJoined;
+
+        UnpauseGame();
     }
 
     private void OnDestroy()
     {
         playerInputManager.onPlayerJoined -= OnPlayerJoined;
+    }
+
+    public void TogglePause()
+    {
+        GameIsPaused = !GameIsPaused;
+
+        if (GameIsPaused)
+        {
+            Time.timeScale = 0f;
+            AudioListener.pause = true;
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
+
+            inGameMenu.SetActive(true);
+        }
+        else
+        {
+            Time.timeScale = 1f;
+            AudioListener.pause = false;
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
+
+            inGameMenu.SetActive(false);
+        }
+    }
+
+    private void UnpauseGame()
+    {
+        Time.timeScale = 1f;
+        AudioListener.pause = false;
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
+
+        inGameMenu.SetActive(false);
     }
 
     public Checkpoint[] GetSceneCheckpoints() => sceneCheckpoints;

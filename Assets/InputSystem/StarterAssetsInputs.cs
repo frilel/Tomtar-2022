@@ -18,6 +18,7 @@ namespace StarterAssets
 
 		// EVENTS
 		public UnityEvent<InputAction.CallbackContext> FireEvent;
+		public UnityEvent<InputAction.CallbackContext> PauseEvent;
 
 		//[Header("Movement Settings")]
 		public bool AnalogMovement { get; private set; }
@@ -84,6 +85,14 @@ namespace StarterAssets
 		public void OnFire(InputAction.CallbackContext context)
 		{
 			FireEvent.Invoke(context);
+		}
+
+		/// <summary>
+		/// Public to assign actions in inspector for PlayerInput
+		/// </summary>
+		public void OnPause(InputAction.CallbackContext context)
+		{
+			PauseEvent.Invoke(context);
 		}
 #else
 	// old input sys if we do decide to have it (most likely wont)...
