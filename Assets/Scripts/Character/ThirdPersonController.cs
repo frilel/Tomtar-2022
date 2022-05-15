@@ -585,6 +585,6 @@ public class ThirdPersonController : MonoBehaviour
     private void OnPause(InputAction.CallbackContext context)
     {
         GameManager.Instance.TogglePause();
-        LockCameraPosition = GameManager.Instance.GameIsPaused;
+        //LockCameraPosition = GameManager.Instance.GameIsPaused;
     }
 }

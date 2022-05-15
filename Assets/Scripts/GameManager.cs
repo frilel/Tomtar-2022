@@ -41,24 +41,15 @@ public class GameManager : MonoBehaviour
     {
         GameIsPaused = !GameIsPaused;
 
-        if (GameIsPaused)
-        {
-            Time.timeScale = 0f;
-            AudioListener.pause = true;
-            Cursor.lockState = CursorLockMode.None;
-            Cursor.visible = true;
+        Time.timeScale = GameIsPaused ? 0f : 1f;
+        AudioListener.pause = GameIsPaused;
+        Cursor.lockState = GameIsPaused ? CursorLockMode.None : CursorLockMode.Locked;
+        Cursor.visible = GameIsPaused;
 
-            inGameMenu.SetActive(true);
-        }
-        else
-        {
-            Time.timeScale = 1f;
-            AudioListener.pause = false;
-            Cursor.lockState = CursorLockMode.Locked;
-            Cursor.visible = false;
+        if (Player1TPC != null) Player1TPC.LockCameraPosition = GameIsPaused;
+        if (Player2TPC != null) Player2TPC.LockCameraPosition = GameIsPaused;
 
-            inGameMenu.SetActive(false);
-        }
+        if(inGameMenu != null) inGameMenu.SetActive(GameIsPaused);
     }
 
     private void UnpauseGame()
@@ -68,7 +59,7 @@ public class GameManager : MonoBehaviour
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
 
-        inGameMenu.SetActive(false);
+        if (inGameMenu != null) inGameMenu.SetActive(false);
     }
 
     public Checkpoint[] GetSceneCheckpoints() => sceneCheckpoints;
