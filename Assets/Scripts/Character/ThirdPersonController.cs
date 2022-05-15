@@ -299,7 +299,8 @@ public class ThirdPersonController : MonoBehaviour
             if (groundHitsBuffer[i].collider == null ||
                 groundHitsBuffer[i].distance < float.Epsilon ||
                 groundHitsBuffer[i].point == Vector3.zero ||
-                groundHitsBuffer[i].collider.CompareTag("Respawnable"))
+                groundHitsBuffer[i].collider.CompareTag("Respawnable") ||
+                groundHitsBuffer[i].collider.CompareTag("MagicMoveable"))
                 continue;
 
             float slopeAngle = Mathf.Round(Mathf.Acos(Vector3.Dot(groundHitsBuffer[i].normal, Vector3.up)) * Mathf.Rad2Deg);
