@@ -414,6 +414,14 @@ PrefabInstance:
       propertyPath: m_Camera
       value: 
       objectReference: {fileID: 771404012044428471}
+    - target: {fileID: 5907789379324668124, guid: 928c28adcbef94041982b01b120df298, type: 3}
+      propertyPath: GroundedRadius
+      value: 0.21
+      objectReference: {fileID: 0}
+    - target: {fileID: 5907789379324668125, guid: 928c28adcbef94041982b01b120df298, type: 3}
+      propertyPath: m_SlopeLimit
+      value: 50
+      objectReference: {fileID: 0}
     - target: {fileID: 6536833637798163053, guid: 928c28adcbef94041982b01b120df298, type: 3}
       propertyPath: m_RootOrder
       value: 3

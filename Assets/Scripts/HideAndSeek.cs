@@ -93,6 +93,7 @@ public class HideAndSeek : MonoBehaviour
     }
 
     void OnDisable() {
-        slider.gameObject.SetActive(false);
+        if (slider.gameObject != null)
+            slider.gameObject.SetActive(false);
     }
 }

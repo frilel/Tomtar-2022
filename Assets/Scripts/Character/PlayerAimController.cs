@@ -30,7 +30,7 @@ public class PlayerAimController : MonoBehaviour
                 defaultCamera.SetActive(false);
                 aimCamera.SetActive(true);
                 moveController.SetRotateOnMove(false);
-                //reticleCanvas.gameObject.SetActive(true);
+                reticleCanvas.gameObject.SetActive(true);
             }
 
             // Calculate aim location for character rotation
@@ -48,7 +48,7 @@ public class PlayerAimController : MonoBehaviour
                 defaultCamera.SetActive(true);
                 aimCamera.SetActive(false);
                 moveController.SetRotateOnMove(true);
-                //reticleCanvas.gameObject.SetActive(false); // christian: let the players see the reticle without aiming unless there is some reason for hiding it
+                reticleCanvas.gameObject.SetActive(true); // christian: let the players see the reticle without aiming unless there is some reason for hiding it, hard to grapple otherwise
             }
         }
     }

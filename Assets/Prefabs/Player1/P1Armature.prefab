@@ -2163,9 +2163,9 @@ MonoBehaviour:
   GroundLayers:
     serializedVersion: 2
     m_Bits: 229377
-  disableSliding: 1
+  disableSliding: 0
   CinemachineCameraTarget: {fileID: 3338909986037700322}
-  TopClamp: 70
+  TopClamp: 80
   BottomClamp: -30
   CameraAngleOverride: 0
   LockCameraPosition: 0
