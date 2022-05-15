@@ -19,7 +19,8 @@ public class Checkpoint : MonoBehaviour
     private void Start()
     {
         rend = this.transform.gameObject.GetComponent<Renderer>();
-        rend.material = inactiveMaterial;
+        if (rend != null)
+            rend.material = inactiveMaterial;
     }
 
     private void OnTriggerEnter(Collider other)
@@ -27,12 +28,13 @@ public class Checkpoint : MonoBehaviour
         if (!other.gameObject.CompareTag("Player1") && !other.gameObject.CompareTag("Player2"))
             return;
 
-        rend.material = activeMaterial;
+        if (rend != null)
+            rend.material = activeMaterial;
 
         if (affectBothPlayers)
         {
-            GameManager.Instance.Player1IC?.SetCurrentCheckpoint(this);
-            GameManager.Instance.Player2IC?.SetCurrentCheckpoint(this);
+            if (GameManager.Instance.Player1IC != null) GameManager.Instance.Player1IC.SetCurrentCheckpoint(this);
+            if (GameManager.Instance.Player2IC != null) GameManager.Instance.Player2IC.SetCurrentCheckpoint(this);
             GameManager.Instance.SetCurrentObjectRespawner(associatedObjectRespawner);
         }
         else if (other.gameObject.CompareTag("Player1"))
@@ -45,7 +47,8 @@ public class Checkpoint : MonoBehaviour
 
     public void SetInactive()
     {
-        rend.material = inactiveMaterial;
+        if (rend != null)
+            rend.material = inactiveMaterial;
     }
 
 }

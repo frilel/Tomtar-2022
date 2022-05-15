@@ -12,7 +12,7 @@ GameObject:
   m_Layer: 0
   m_Name: Respawn Point
   m_TagString: Untagged
-  m_Icon: {fileID: 0}
+  m_Icon: {fileID: -1412012063857583412, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
@@ -80,7 +80,7 @@ MeshRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 822451222878738958}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
@@ -144,4 +144,3 @@ MonoBehaviour:
   activeMaterial: {fileID: 2100000, guid: 7de6f2372b0879b4ab0fe472a2a2d2dd, type: 2}
   respawnPoint: {fileID: 1309951404}
   associatedObjectRespawner: {fileID: 0}
-  boxCollider: {fileID: 7968898010686896072}
