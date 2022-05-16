@@ -311,7 +311,7 @@ public class ThirdPersonController : MonoBehaviour
             else
             {
                 isSliding = true;
-                Debug.Log("here");
+
                 //calculate a vector that runs across the slope
                 Vector3 tangent = Vector3.Cross(groundHitsBuffer[i].normal, Vector3.up);
                 //from that, calculate the direction of steepest descent
