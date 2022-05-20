@@ -369,21 +369,8 @@ public class ThirdPersonController : MonoBehaviour
 
             if (recenterToTargetHeading && input.Move != Vector2.zero)
             {
-                // rotate CinemachineCameraTarget to armature heading
-                
-                
-                //Quaternion targetRotation = Quaternion.Euler(CinemachineCameraTarget.transform.rotation.eulerAngles.x, playerArmature.transform.rotation.eulerAngles.y, 0.0f);
-                //Quaternion targetRotation = Quaternion.FromToRotation(CinemachineCameraTarget.transform.forward, playerArmature.transform.forward);
-                //CinemachineCameraTarget.transform.rotation = Quaternion.Lerp(CinemachineCameraTarget.transform.rotation, targetRotation, Time.deltaTime * 0.5f);
-
-                // save new values for next player input
-                //cinemachineTargetYaw = Mathf.Lerp(cinemachineTargetYaw, playerArmature.transform.eulerAngles.y, Time.deltaTime * 0.5f);
-                //cinemachineTargetPitch = playerArmature.transform.eulerAngles.x;
-
                 targetRotation = Quaternion.LookRotation(playerArmature.transform.forward).eulerAngles.y;
                 cinemachineTargetYaw = Mathf.SmoothDampAngle(cinemachineTargetYaw, targetRotation, ref cameraRotationHeadingVelocity, 0.8f);
-                //cinemachineTargetYaw = Quaternion.Euler(0.0f, rotation, 0.0f);
-
             }
         }
 

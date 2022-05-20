@@ -68,7 +68,8 @@ namespace StarterAssets
 		/// </summary>
 		public void OnSprint(InputAction.CallbackContext context)
 		{
-			Debug.Log("Sprint was pressed");
+			// TODO: Figure out why the sprint is pressed on the slightest touch on left gamepad stick
+			//Debug.Log("Sprint was pressed");
 			// hold
 			//SprintInput(context.action.ReadValue<float>() == 1);
 
