@@ -2066,7 +2066,7 @@ MonoBehaviour:
   GroundedRadius: 0.28
   GroundLayers:
     serializedVersion: 2
-    m_Bits: 229377
+    m_Bits: 229633
   disableSliding: 0
   CinemachineCameraTarget: {fileID: 2236798171815416204}
   TopClamp: 80
@@ -2313,7 +2313,7 @@ MonoBehaviour:
   reticleCanvas: {fileID: 0}
   aimMask:
     serializedVersion: 2
-    m_Bits: 229377
+    m_Bits: 229633
   characterLookRotationSpeed: 5
 --- !u!114 &8774604329674076472
 MonoBehaviour:
@@ -2351,10 +2351,10 @@ MonoBehaviour:
   mainCamera: {fileID: 0}
   surfacesToHit:
     serializedVersion: 2
-    m_Bits: 131073
+    m_Bits: 131329
   blockingSurfaces:
     serializedVersion: 2
-    m_Bits: 98305
+    m_Bits: 98561
 --- !u!1 &5941891365926362251
 GameObject:
   m_ObjectHideFlags: 0

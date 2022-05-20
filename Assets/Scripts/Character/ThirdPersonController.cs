@@ -82,6 +82,8 @@ public class ThirdPersonController : MonoBehaviour
     public float CameraAngleOverride = 0.0f;
     [Tooltip("For locking the camera position on all axis")]
     public bool LockCameraPosition = false;
+    private Cinemachine3rdPersonFollow cm;
+    [SerializeField] private bool recenterToTargetHeading = false;
 
 
     // cinemachine
@@ -93,6 +95,7 @@ public class ThirdPersonController : MonoBehaviour
     private float animationBlend;
     private float targetRotation = 0.0f;
     private float rotationVelocity;
+    private float cameraRotationHeadingVelocity;
     private float verticalVelocity;
     private Vector3 velocityMomentum;
     private float terminalVelocity = 53.0f;
@@ -117,8 +120,9 @@ public class ThirdPersonController : MonoBehaviour
     private CharacterController controller;
     private StarterAssetsInputs input;
     private GameObject mainCamera;
+    private GameObject playerArmature;
 
-    private const float threshold = 0.01f;
+    private const float lookInputThreshold = 0.01f;
 
     private bool hasAnimator;
 
@@ -148,8 +152,10 @@ public class ThirdPersonController : MonoBehaviour
         input = GetComponent<StarterAssetsInputs>();
         input.PauseEvent.AddListener(OnPause);
 
-
         playerInput = GetComponent<PlayerInput>();
+
+        playerArmature = this.gameObject;
+
         AssignAnimationIDs();
 
         // reset our timeouts on start
@@ -327,7 +333,7 @@ public class ThirdPersonController : MonoBehaviour
     private void CameraRotation()
     {
         // if there is an input and camera position is not fixed
-        if (input.Look.sqrMagnitude >= threshold && !LockCameraPosition)
+        if (input.Look.sqrMagnitude >= lookInputThreshold && !LockCameraPosition)
         {
             //Don't multiply mouse input by Time.deltaTime;
             float deltaTimeMultiplier = IsCurrentDeviceMouse ? 1.0f : Time.deltaTime;
@@ -337,12 +343,12 @@ public class ThirdPersonController : MonoBehaviour
                 float xVal = EaseInQuad(cameraRotationTime, input.Look.x * 0.25f, input.Look.x, 0.5f);
                 float yVal = EaseInQuad(cameraRotationTime, input.Look.y * 0.25f, input.Look.y, 0.5f);
 
-                if(input.Look.x < 0f)
+                if (input.Look.x < 0f)
                     xVal = Mathf.Clamp(xVal, input.Look.x, 0f);
                 else
                     xVal = Mathf.Clamp(xVal, 0f, input.Look.x);
 
-                if(input.Look.y < 0f)
+                if (input.Look.y < 0f)
                     yVal = Mathf.Clamp(yVal, input.Look.y, 0f);
                 else
                     yVal = Mathf.Clamp(yVal, 0f, input.Look.y);
@@ -351,15 +357,35 @@ public class ThirdPersonController : MonoBehaviour
                 cinemachineTargetPitch += yVal * deltaTimeMultiplier;
 
                 cameraRotationTime += Time.deltaTime;
-            }
-            else
+            } else
             {
                 cinemachineTargetYaw += input.Look.x * deltaTimeMultiplier;
                 cinemachineTargetPitch += input.Look.y * deltaTimeMultiplier;
             }
-        }
-        else
+
+        } else if (!IsCurrentDeviceMouse)
+        {
             cameraRotationTime = 0f;
+
+            if (recenterToTargetHeading && input.Move != Vector2.zero)
+            {
+                // rotate CinemachineCameraTarget to armature heading
+                
+                
+                //Quaternion targetRotation = Quaternion.Euler(CinemachineCameraTarget.transform.rotation.eulerAngles.x, playerArmature.transform.rotation.eulerAngles.y, 0.0f);
+                //Quaternion targetRotation = Quaternion.FromToRotation(CinemachineCameraTarget.transform.forward, playerArmature.transform.forward);
+                //CinemachineCameraTarget.transform.rotation = Quaternion.Lerp(CinemachineCameraTarget.transform.rotation, targetRotation, Time.deltaTime * 0.5f);
+
+                // save new values for next player input
+                //cinemachineTargetYaw = Mathf.Lerp(cinemachineTargetYaw, playerArmature.transform.eulerAngles.y, Time.deltaTime * 0.5f);
+                //cinemachineTargetPitch = playerArmature.transform.eulerAngles.x;
+
+                targetRotation = Quaternion.LookRotation(playerArmature.transform.forward).eulerAngles.y;
+                cinemachineTargetYaw = Mathf.SmoothDampAngle(cinemachineTargetYaw, targetRotation, ref cameraRotationHeadingVelocity, 0.8f);
+                //cinemachineTargetYaw = Quaternion.Euler(0.0f, rotation, 0.0f);
+
+            }
+        }
 
         // clamp our rotations so our values are limited 360 degrees
         cinemachineTargetYaw = ClampAngle(cinemachineTargetYaw, float.MinValue, float.MaxValue);

@@ -68,7 +68,13 @@ namespace StarterAssets
 		/// </summary>
 		public void OnSprint(InputAction.CallbackContext context)
 		{
-			SprintInput(context.action.ReadValue<float>() == 1);
+			Debug.Log("Sprint was pressed");
+			// hold
+			//SprintInput(context.action.ReadValue<float>() == 1);
+
+			// toggle
+			if (context.action.ReadValue<float>() == 1)
+				SprintInput(!Sprint);
 		}
 
 		/// <summary>

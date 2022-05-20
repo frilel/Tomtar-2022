@@ -2162,7 +2162,7 @@ MonoBehaviour:
   GroundedRadius: 0.28
   GroundLayers:
     serializedVersion: 2
-    m_Bits: 229377
+    m_Bits: 229633
   disableSliding: 0
   CinemachineCameraTarget: {fileID: 3338909986037700322}
   TopClamp: 80
@@ -2476,7 +2476,7 @@ MonoBehaviour:
   reticleCanvas: {fileID: 0}
   aimMask:
     serializedVersion: 2
-    m_Bits: 98305
+    m_Bits: 229633
   characterLookRotationSpeed: 5
 --- !u!114 &5547788289795792567
 MonoBehaviour:

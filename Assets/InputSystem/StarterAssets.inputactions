@@ -618,7 +618,7 @@
                     "name": "",
                     "id": "9bd2b33e-9f79-471a-b351-4a4a62926027",
                     "path": "<Gamepad>/leftStick/down",
-                    "interactions": "Hold",
+                    "interactions": "",
                     "processors": "",
                     "groups": "Gamepad",
                     "action": "Sprint",
