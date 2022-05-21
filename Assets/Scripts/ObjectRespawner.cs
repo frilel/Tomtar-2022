@@ -6,8 +6,7 @@ public class ObjectRespawner : MonoBehaviour
 
     public void Respawn(GameObject respawnable)
     {
-        respawnable.transform.position = spawnPoint.position;
-        respawnable.transform.rotation = spawnPoint.rotation;
+        respawnable.transform.SetPositionAndRotation(spawnPoint.position, spawnPoint.rotation);
         Physics.SyncTransforms();
 
         respawnable.GetComponent<Rigidbody>().AddRelativeForce(0.0f, 10.0f, 10.0f, ForceMode.Impulse);

@@ -71,11 +71,11 @@ namespace StarterAssets
 			// TODO: Figure out why the sprint is pressed on the slightest touch on left gamepad stick
 			//Debug.Log("Sprint was pressed");
 			// hold
-			//SprintInput(context.action.ReadValue<float>() == 1);
+			SprintInput(context.action.ReadValue<float>() == 1);
 
 			// toggle
-			if (context.action.ReadValue<float>() == 1)
-				SprintInput(!Sprint);
+			//if (context.action.ReadValue<float>() == 1)
+				//SprintInput(!Sprint);
 		}
 
 		/// <summary>

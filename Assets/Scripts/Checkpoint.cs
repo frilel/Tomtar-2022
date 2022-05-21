@@ -35,12 +35,14 @@ public class Checkpoint : MonoBehaviour
         {
             if (GameManager.Instance.Player1IC != null) GameManager.Instance.Player1IC.SetCurrentCheckpoint(this);
             if (GameManager.Instance.Player2IC != null) GameManager.Instance.Player2IC.SetCurrentCheckpoint(this);
-            GameManager.Instance.SetCurrentObjectRespawner(associatedObjectRespawner);
         }
         else if (other.gameObject.CompareTag("Player1"))
             GameManager.Instance.Player1IC.SetCurrentCheckpoint(this);
         else if (other.gameObject.CompareTag("Player2"))
             GameManager.Instance.Player2IC.SetCurrentCheckpoint(this);
+
+        if(associatedObjectRespawner != null)
+            GameManager.Instance.SetCurrentObjectRespawner(associatedObjectRespawner);
     }
 
     public Transform GetRespawnPoint() => respawnPoint;
