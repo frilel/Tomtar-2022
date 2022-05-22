@@ -299,33 +299,47 @@ public class ThirdPersonController : MonoBehaviour
             return;
 
         isSliding = false;
+        float maxDistance = float.MaxValue;
+        RaycastHit closestHit = new RaycastHit();
+        bool closestHitFound = false;
 
+        // skip potential bad hits and get the closest collider hit
         for (int i = 0; i < groundHitsBuffer.Length; i++)
         {
             if (groundHitsBuffer[i].collider == null ||
                 groundHitsBuffer[i].distance < float.Epsilon ||
                 groundHitsBuffer[i].point == Vector3.zero ||
-                groundHitsBuffer[i].collider.CompareTag("Respawnable") ||
+                groundHitsBuffer[i].collider.CompareTag("Respawnable") || // the tagged ones was causing issues
                 groundHitsBuffer[i].collider.CompareTag("MagicMoveable"))
                 continue;
 
-            float slopeAngle = Mathf.Round(Mathf.Acos(Vector3.Dot(groundHitsBuffer[i].normal, Vector3.up)) * Mathf.Rad2Deg);
-            bool shouldSlide = slopeAngle >= controller.slopeLimit && slopeAngle < 90.0f;
-
-            if (!shouldSlide)
-                continue;
-            else
+            if (groundHitsBuffer[i].distance < maxDistance)
             {
-                isSliding = true;
-
-                //calculate a vector that runs across the slope
-                Vector3 tangent = Vector3.Cross(groundHitsBuffer[i].normal, Vector3.up);
-                //from that, calculate the direction of steepest descent
-                Vector3 slideDir = Vector3.Cross(groundHitsBuffer[i].normal, tangent);
-
-                this.transform.position += Time.deltaTime * -slidingVelocity * slideDir;
-                Physics.SyncTransforms();
+                closestHit = groundHitsBuffer[i];
+                maxDistance = groundHitsBuffer[i].distance;
+                closestHitFound = true;
             }
+        }
+
+        if (!closestHitFound)
+            return;
+
+        float slopeAngle = Mathf.Round(Mathf.Acos(Vector3.Dot(closestHit.normal, Vector3.up)) * Mathf.Rad2Deg);
+        bool shouldSlide = slopeAngle >= controller.slopeLimit && slopeAngle < 90.0f;
+
+        if (!shouldSlide)
+            return;
+        else
+        {
+            isSliding = true;
+
+            //calculate a vector that runs across the slope
+            Vector3 tangent = Vector3.Cross(closestHit.normal, Vector3.up);
+            //from that, calculate the direction of steepest descent
+            Vector3 slideDir = Vector3.Cross(closestHit.normal, tangent);
+
+            this.transform.position += Time.deltaTime * -slidingVelocity * slideDir;
+            Physics.SyncTransforms();
         }
 
     }
