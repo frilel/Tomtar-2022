@@ -74,7 +74,13 @@ public class HideAndSeek : MonoBehaviour
                 seekRay.direction = -box.transform.up;
                 if(!Physics.Raycast(seekRay, out RaycastHit hit, 99f, seekMask, QueryTriggerInteraction.Collide)) continue;
                 
-                if(hit.collider == box){
+                bool isSeen = hit.collider == box;
+                Outline outline = obj.GetComponentInParent<Outline>(true);
+                if(outline != null){
+                    outline.enabled = isSeen;
+                }
+
+                if(isSeen){
                     Debug.DrawLine(seekRay.origin, hit.point, Color.red, Time.deltaTime);
                     return true;
                 }
