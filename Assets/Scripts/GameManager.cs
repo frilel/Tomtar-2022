@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.Events;
 using StarterAssets;
 #if ENABLE_INPUT_SYSTEM && STARTER_ASSETS_PACKAGES_CHECKED
@@ -60,6 +61,11 @@ public class GameManager : MonoBehaviour
         Cursor.visible = false;
 
         if (inGameMenu != null) inGameMenu.SetActive(false);
+    }
+
+    public void LoadScene(string sceneName)
+    {
+        SceneManager.LoadScene(sceneName);
     }
 
     public Checkpoint[] GetSceneCheckpoints() => sceneCheckpoints;
