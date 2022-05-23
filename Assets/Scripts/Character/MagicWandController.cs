@@ -8,6 +8,7 @@ public class MagicWandController : MonoBehaviour
 {
     public LayerMask layerMask;
     public float minDistance = 5f;
+    public float throwPower = 50f;
 
     private PlayerAimController aimController;
     private StarterAssetsInputs input;
@@ -24,12 +25,6 @@ public class MagicWandController : MonoBehaviour
         input.FireEvent.AddListener(FireEventListener);
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-
-    }
-
     void FixedUpdate ()
     {
         if (target != null) {
@@ -44,6 +39,7 @@ public class MagicWandController : MonoBehaviour
 
                 Vector3 delta = newPosition - target.transform.position;
                 target.GetComponent<CharacterController>().Move(delta);
+                // target.transform.position = newPosition;
 
                 // targetLatchDistance = (target.transform.position - aimRay.origin).magnitude;
             }            
@@ -53,8 +49,28 @@ public class MagicWandController : MonoBehaviour
     void FireEventListener(InputAction.CallbackContext value)
     {
         if (!value.action.IsPressed()){
-            // Just released, unlock target
-            UnLatch();
+            if(target != null){
+                // Just released, unlock target
+                Physics.IgnoreCollision(target.GetComponent<Collider>(), GetComponent<Collider>(), false);
+                if (target.GetComponent<Rigidbody>() != null){
+                    target.GetComponent<Rigidbody>().isKinematic = false;
+                }
+                
+                Outline outline = target.GetComponent<Outline>();
+                if (outline != null){
+                    outline.OutlineWidth = 3;
+                    outline.OutlineMode = Outline.Mode.OutlineVisible;
+                }
+
+                if (!target.TryGetComponent<ConstrainedPathObject>(out ConstrainedPathObject _)
+                        && target.TryGetComponent<Rigidbody>(out Rigidbody rBody)){
+                    Vector3 force = aimController.AimRay().direction * throwPower;
+                    rBody.AddForce(force, ForceMode.Impulse);
+                }
+
+                target = null;
+            }
+            
         } else {
             if (Physics.Raycast(aimController.AimRay(), out RaycastHit raycastHit, 999f, layerMask)) {
 
@@ -76,23 +92,6 @@ public class MagicWandController : MonoBehaviour
                     }
                 }
             }
-        }
-    }
-
-    private void UnLatch(){
-        if (target != null){
-            Physics.IgnoreCollision(target.GetComponent<Collider>(), GetComponent<Collider>(), false);
-            if (target.GetComponent<Rigidbody>() != null){
-                target.GetComponent<Rigidbody>().isKinematic = false;
-            }
-            
-            Outline outline = target.GetComponent<Outline>();
-            if (outline != null){
-                outline.OutlineWidth = 3;
-                outline.OutlineMode = Outline.Mode.OutlineVisible;
-            }
-
-            target = null;
         }
     }
 }

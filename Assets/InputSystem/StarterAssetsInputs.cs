@@ -18,6 +18,7 @@ namespace StarterAssets
 
 		// EVENTS
 		public UnityEvent<InputAction.CallbackContext> FireEvent;
+		public UnityEvent<InputAction.CallbackContext> PauseEvent;
 
 		//[Header("Movement Settings")]
 		public bool AnalogMovement { get; private set; }
@@ -67,7 +68,14 @@ namespace StarterAssets
 		/// </summary>
 		public void OnSprint(InputAction.CallbackContext context)
 		{
+			// TODO: Figure out why the sprint is pressed on the slightest touch on left gamepad stick
+			//Debug.Log("Sprint was pressed");
+			// hold
 			SprintInput(context.action.ReadValue<float>() == 1);
+
+			// toggle
+			//if (context.action.ReadValue<float>() == 1)
+				//SprintInput(!Sprint);
 		}
 
 		/// <summary>
@@ -84,6 +92,14 @@ namespace StarterAssets
 		public void OnFire(InputAction.CallbackContext context)
 		{
 			FireEvent.Invoke(context);
+		}
+
+		/// <summary>
+		/// Public to assign actions in inspector for PlayerInput
+		/// </summary>
+		public void OnPause(InputAction.CallbackContext context)
+		{
+			PauseEvent.Invoke(context);
 		}
 #else
 	// old input sys if we do decide to have it (most likely wont)...

@@ -541,6 +541,7 @@ GameObject:
   - component: {fileID: 1343395141026918659}
   - component: {fileID: 6876608403135189299}
   - component: {fileID: 2293278135737260928}
+  - component: {fileID: 995915373910674694}
   m_Layer: 16
   m_Name: ConjureObject1
   m_TagString: Untagged
@@ -624,6 +625,25 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &995915373910674694
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1407574485140391819}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9f105cef0f81f7347b2dc07c15d020f8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  translationSpeed: 5
+  grappleObjectLayer:
+    serializedVersion: 2
+    m_Bits: 65536
+  ignoreCollisionLayer:
+    serializedVersion: 2
+    m_Bits: 4
 --- !u!1 &1594594480646143363
 GameObject:
   m_ObjectHideFlags: 0
@@ -2038,17 +2058,19 @@ MonoBehaviour:
   momentumExtraPushup: 2
   momentumDrag: 0.01
   maxVelocityMomentum: 1
-  JumpTimeout: 0.3
+  JumpTimeout: 0.1
   FallTimeout: 0.15
+  terminalSlidingVelocity: 20
   Grounded: 1
   GroundedOffset: -0.14
   GroundedRadius: 0.28
   GroundLayers:
     serializedVersion: 2
-    m_Bits: 229377
+    m_Bits: 229633
+  disableSliding: 0
   CinemachineCameraTarget: {fileID: 2236798171815416204}
-  TopClamp: 70
-  BottomClamp: -30
+  TopClamp: 80
+  BottomClamp: -80
   CameraAngleOverride: 0
   LockCameraPosition: 0
 --- !u!114 &5907789379324668123
@@ -2196,6 +2218,26 @@ MonoBehaviour:
         m_CallState: 2
     m_ActionId: ec17caa6-0077-411f-bf6a-bbca1adf50d7
     m_ActionName: Player2/Fire[/Mouse/leftButton,/XInputControllerWindows/rightTrigger]
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 1c6e8db2-6112-4c67-9f66-c5127cb65683
+    m_ActionName: Player1/Pause[/Keyboard/escape,/XInputControllerWindows/start]
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 7877622645576840363}
+        m_TargetAssemblyTypeName: StarterAssets.StarterAssetsInputs, Assembly-CSharp
+        m_MethodName: OnPause
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: da8f65a5-5841-463b-afb0-a7b6d09d82f6
+    m_ActionName: Player2/Pause[/Keyboard/escape,/XInputControllerWindows/start]
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: Player2
@@ -2233,6 +2275,9 @@ MonoBehaviour:
   FireEvent:
     m_PersistentCalls:
       m_Calls: []
+  PauseEvent:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!114 &7566526640170185366
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2249,6 +2294,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 1
   minDistance: 5
+  throwPower: 50
 --- !u!114 &7831968648386912667
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2267,7 +2313,7 @@ MonoBehaviour:
   reticleCanvas: {fileID: 0}
   aimMask:
     serializedVersion: 2
-    m_Bits: 229377
+    m_Bits: 229633
   characterLookRotationSpeed: 5
 --- !u!114 &8774604329674076472
 MonoBehaviour:
@@ -2296,15 +2342,19 @@ MonoBehaviour:
   throwOrigins:
   - {fileID: 8895446328254459318}
   - {fileID: 5517516269235611021}
-  throwObjects:
-  - {fileID: 3595699868499604269}
-  - {fileID: 1655453094657917134}
+  objectsInInventory:
+  - {fileID: 995915373910674694}
+  - {fileID: 3986505889602278666}
   maxDistance: 100
+  scaleAtOrigin: 0.1
+  scaleAtSurface: 1.5
   mainCamera: {fileID: 0}
-  conjurableSurface:
+  surfacesToHit:
     serializedVersion: 2
-    m_Bits: 131072
-  player: {fileID: 5907789379324668124}
+    m_Bits: 131329
+  blockingSurfaces:
+    serializedVersion: 2
+    m_Bits: 98561
 --- !u!1 &5941891365926362251
 GameObject:
   m_ObjectHideFlags: 0
@@ -3028,6 +3078,7 @@ GameObject:
   - component: {fileID: 2378337359153249342}
   - component: {fileID: 8409732561043611421}
   - component: {fileID: 634847960796859568}
+  - component: {fileID: 3986505889602278666}
   m_Layer: 16
   m_Name: ConjureObject2
   m_TagString: Untagged
@@ -3111,6 +3162,25 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &3986505889602278666
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8766606455932996567}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9f105cef0f81f7347b2dc07c15d020f8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  translationSpeed: 5
+  grappleObjectLayer:
+    serializedVersion: 2
+    m_Bits: 65536
+  ignoreCollisionLayer:
+    serializedVersion: 2
+    m_Bits: 4
 --- !u!1 &8911270005694332038
 GameObject:
   m_ObjectHideFlags: 0

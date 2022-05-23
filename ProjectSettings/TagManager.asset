@@ -8,6 +8,8 @@ TagManager:
   - MagicMoveable
   - Player1
   - Player2
+  - RollingBall
+  - Respawnable
   layers:
   - Default
   - TransparentFX
@@ -17,7 +19,7 @@ TagManager:
   - UI
   - Player1
   - Player2
-  - 
+  - GroundNoCamCollision
   - 
   - 
   - P1 Cam
@@ -27,7 +29,7 @@ TagManager:
   - Pushable
   - Grappable
   - Conjurable
-  - 
+  - Seeker (Hide and Seek)
   - 
   - 
   - 

@@ -1,5 +1,4 @@
 using UnityEngine;
-using StarterAssets;
 
 public class PlayerInteractionController : MonoBehaviour
 {

@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 /// <summary>
 /// Put this script on an object with a BoxCollider in order to have it follow along
@@ -6,7 +7,7 @@ using UnityEngine;
 /// </summary>
 public class BoxMovingOnPlatform : MonoBehaviour
 {
-    // TODO: Make class work with other types of colliders
+    // TODO: Make class, or subclasses, work with other types of colliders
 
     [SerializeField] private LayerMask groundLayers;
 
@@ -14,27 +15,45 @@ public class BoxMovingOnPlatform : MonoBehaviour
     private GameObject currentPlatform = null;
     private Vector3 prevPlatformPos = Vector3.zero;
     private Vector3 platformVelocity = Vector3.zero;
+    private RaycastHit[] hitInfosBuffer = new RaycastHit[12];
+    private RaycastHit emptyHit = new RaycastHit();
 
     private void Start()
     {
         boxCollider = GetComponent<BoxCollider>();
     }
 
-    void Update()
+    void LateUpdate()
     {
-        Vector3 checkBoxPosition = new Vector3(transform.position.x, transform.position.y - 0.2f, transform.position.z);
-        
-        // check if ground is platform, add platform velocity to movement if so
-        if (Physics.CheckBox(checkBoxPosition, boxCollider.bounds.extents, this.transform.rotation, groundLayers, QueryTriggerInteraction.Ignore))
-        {
-            Vector3 startPos = new Vector3(transform.position.x, transform.position.y + 0.1f, transform.position.z);
-            Physics.BoxCast(startPos, boxCollider.bounds.extents, Vector3.down, out RaycastHit hitInfo, this.transform.rotation, 0.2f, groundLayers, QueryTriggerInteraction.Ignore);
+        Vector3 checkBoxPosition = new Vector3(transform.position.x, transform.position.y - 0.2f, transform.position.z); // check underneath
+        bool isOnPlatform = false;
 
-            if (hitInfo.collider != null && hitInfo.collider.gameObject.CompareTag("MagicMoveable"))
+        // check if grounded
+        if (Physics.CheckBox(checkBoxPosition, boxCollider.bounds.extents, transform.rotation, groundLayers, QueryTriggerInteraction.Ignore) ||
+            Physics.CheckBox(transform.position, boxCollider.bounds.extents, transform.rotation, groundLayers, QueryTriggerInteraction.Ignore))
+        {
+            // reset hitInfosBuffer
+            for (int i = 0; i < hitInfosBuffer.Length; i++)
+                hitInfosBuffer[i] = emptyHit;
+
+            Vector3 startPos = new Vector3(transform.position.x, transform.position.y + boxCollider.bounds.extents.magnitude, transform.position.z); // start a bit above
+            Physics.BoxCastNonAlloc(startPos, boxCollider.bounds.extents, Vector3.down, hitInfosBuffer, transform.rotation, boxCollider.bounds.extents.magnitude * 2.0f, groundLayers, QueryTriggerInteraction.Ignore);
+            
+            // check if ground is platform, add platform velocity to movement if so
+            // NOTE (christian): atm the code assumes only one platform is going to affect the box
+            for (int i = 0; i < hitInfosBuffer.Length; i++)
             {
-                if (currentPlatform == null) // We have just stepped on to the platform
+                if (hitInfosBuffer[i].collider == null || 
+                    hitInfosBuffer[i].distance < float.Epsilon || 
+                    hitInfosBuffer[i].point == Vector3.zero || 
+                    !hitInfosBuffer[i].collider.gameObject.CompareTag("MagicMoveable"))
+                    continue;
+
+                isOnPlatform = true;
+
+                if (currentPlatform == null) // first frame on platform
                 {
-                    currentPlatform = hitInfo.collider.gameObject;
+                    currentPlatform = hitInfosBuffer[i].collider.gameObject;
                     prevPlatformPos = currentPlatform.transform.position;
                 }
                 else // earliest second frame on platform
@@ -45,6 +64,12 @@ public class BoxMovingOnPlatform : MonoBehaviour
 
                     prevPlatformPos = currentPlatform.transform.position;
                 }
+            }
+            // iterated thru all but is not on platform
+            if (!isOnPlatform && currentPlatform != null)
+            {
+                currentPlatform = null;
+                prevPlatformPos = Vector3.zero;
             }
         }
         else

@@ -1,11 +1,13 @@
-using System;
 using UnityEngine;
+using Cinemachine;
 using StarterAssets;
 #if ENABLE_INPUT_SYSTEM
 using UnityEngine.InputSystem;
 #endif
 
 /* Note: animations are called via the controller for both the character and capsule using animator null checks
+ * 
+ * TODO: make unnecessary public to private
  */
 
 [RequireComponent(typeof(CharacterController))]
@@ -56,6 +58,7 @@ public class ThirdPersonController : MonoBehaviour
     public float JumpTimeout = 0.50f;
     [Tooltip("Time required to pass before entering the fall state. Useful for walking down stairs")]
     public float FallTimeout = 0.15f;
+    [SerializeField] private float terminalSlidingVelocity = 20.0f;
 
     [Header("Player Grounded")]
     [Tooltip("If the character is grounded or not. Not part of the CharacterController built in grounded check")]
@@ -66,6 +69,7 @@ public class ThirdPersonController : MonoBehaviour
     public float GroundedRadius = 0.28f;
     [Tooltip("What layers the character uses as ground")]
     public LayerMask GroundLayers;
+    [SerializeField] private bool disableSliding = true;
 
     [Header("Cinemachine")]
     [Tooltip("The follow target set in the Cinemachine Virtual Camera that the camera will follow")]
@@ -78,6 +82,8 @@ public class ThirdPersonController : MonoBehaviour
     public float CameraAngleOverride = 0.0f;
     [Tooltip("For locking the camera position on all axis")]
     public bool LockCameraPosition = false;
+    private Cinemachine3rdPersonFollow cm;
+    [SerializeField] private bool recenterToTargetHeading = false;
 
 
     // cinemachine
@@ -89,11 +95,14 @@ public class ThirdPersonController : MonoBehaviour
     private float animationBlend;
     private float targetRotation = 0.0f;
     private float rotationVelocity;
+    private float cameraRotationHeadingVelocity;
     private float verticalVelocity;
     private Vector3 velocityMomentum;
     private float terminalVelocity = 53.0f;
     private bool rotateOnMove = true;
     private Vector3 grappleDir;
+    private bool isSliding = false;
+    private float slidingVelocity;
 
     // timeout deltatime
     private float jumpTimeoutDelta;
@@ -111,8 +120,9 @@ public class ThirdPersonController : MonoBehaviour
     private CharacterController controller;
     private StarterAssetsInputs input;
     private GameObject mainCamera;
+    private GameObject playerArmature;
 
-    private const float threshold = 0.01f;
+    private const float lookInputThreshold = 0.01f;
 
     private bool hasAnimator;
 
@@ -120,6 +130,11 @@ public class ThirdPersonController : MonoBehaviour
     private GameObject currentPlatform = null;
     private Vector3 prevPlatformPos = Vector3.zero;
     private Vector3 platformVelocity = Vector3.zero;
+
+    private RaycastHit[] groundHitsBuffer = new RaycastHit[12];
+    private RaycastHit emptyHit = new RaycastHit();
+
+    float cameraRotationTime = 0f;
 
     private bool IsCurrentDeviceMouse => playerInput.currentControlScheme == "KeyboardMouse";
 
@@ -135,9 +150,12 @@ public class ThirdPersonController : MonoBehaviour
         hasAnimator = TryGetComponent(out animator);
         controller = GetComponent<CharacterController>();
         input = GetComponent<StarterAssetsInputs>();
-
+        input.PauseEvent.AddListener(OnPause);
 
         playerInput = GetComponent<PlayerInput>();
+
+        playerArmature = this.gameObject;
+
         AssignAnimationIDs();
 
         // reset our timeouts on start
@@ -161,6 +179,7 @@ public class ThirdPersonController : MonoBehaviour
         DampenVelocityMomentum();
         GroundedCheck();
         PlatformCheck();
+        SlopeCheck();
 
         if (IsGrappling)
             GrapplingMove();
@@ -173,6 +192,11 @@ public class ThirdPersonController : MonoBehaviour
         CameraRotation();
     }
 
+    private void OnDestroy()
+    {
+        input.PauseEvent.RemoveListener(OnPause);
+    }
+
     private void AssignAnimationIDs()
     {
         animIDSpeed = Animator.StringToHash("Speed");
@@ -182,11 +206,25 @@ public class ThirdPersonController : MonoBehaviour
         animIDMotionSpeed = Animator.StringToHash("MotionSpeed");
     }
 
+    /// <summary>
+    /// Sets Grounded and saves hit results in groundHits
+    /// </summary>
     private void GroundedCheck()
     {
         // set sphere position, with offset
         Vector3 spherePosition = new Vector3(transform.position.x, transform.position.y - GroundedOffset, transform.position.z);
         Grounded = Physics.CheckSphere(spherePosition, GroundedRadius, GroundLayers, QueryTriggerInteraction.Ignore);
+
+        // get groundHits
+        if (Grounded)
+        {
+            // reset groundHitsBuffer
+            for (int i = 0; i < groundHitsBuffer.Length; i++)
+                groundHitsBuffer[i] = emptyHit;
+
+            spherePosition = new Vector3(transform.position.x, transform.position.y + 0.4f, transform.position.z);
+            Physics.SphereCastNonAlloc(spherePosition, GroundedRadius, Vector3.down, groundHitsBuffer, 0.5f, GroundLayers, QueryTriggerInteraction.Ignore);
+        }
 
         // update animator if using character
         if (hasAnimator)
@@ -195,31 +233,54 @@ public class ThirdPersonController : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// check if ground is platform, add platform velocity to movement if so
+    /// </summary>
     private void PlatformCheck()
     {
-        // check if ground is platform, add platform velocity to movement if so
+        bool isOnPlatform = false;
+
         if (Grounded)
         {
-            Vector3 spherePosition = new Vector3(transform.position.x, transform.position.y - GroundedOffset, transform.position.z);
-            Physics.SphereCast(spherePosition + (Vector3.up * 0.4f), GroundedRadius, Vector3.down, out RaycastHit hitInfo, 0.5f, GroundLayers, QueryTriggerInteraction.Ignore);
-            if (hitInfo.collider != null && hitInfo.collider.gameObject.CompareTag("MagicMoveable"))
+            for (int i = 0; i < groundHitsBuffer.Length; i++)
             {
-                if (currentPlatform == null) // We have just stepped on to the platform
+                if (groundHitsBuffer[i].collider == null ||
+                    groundHitsBuffer[i].distance < float.Epsilon ||
+                    groundHitsBuffer[i].point == Vector3.zero)
+                    continue;
+
+                bool isMagicMoveable = groundHitsBuffer[i].collider.gameObject.CompareTag("MagicMoveable");
+                bool isRollingBall = groundHitsBuffer[i].collider.gameObject.CompareTag("RollingBall");
+
+                if (!isMagicMoveable && !isRollingBall)
+                    continue;
+
+                isOnPlatform = true;
+
+                if (currentPlatform == null) // first frame on platform
                 {
-                    currentPlatform = hitInfo.collider.gameObject;
+                    currentPlatform = groundHitsBuffer[i].collider.gameObject;
                     prevPlatformPos = currentPlatform.transform.position;
                 }
                 else // earliest second frame on platform
                 {
                     platformVelocity = currentPlatform.transform.position - prevPlatformPos;
+                    if (isRollingBall) platformVelocity *= 2.0f; // get pushed off rolling ball
+
                     this.transform.position += platformVelocity;
                     Physics.SyncTransforms();
 
                     prevPlatformPos = currentPlatform.transform.position;
                 }
             }
+            // iterated thru all but is not on platform
+            if (!isOnPlatform && currentPlatform != null)
+            {
+                currentPlatform = null;
+                prevPlatformPos = Vector3.zero;
+            }
         }
-        else
+        else // not grounded
         {
             if (currentPlatform != null)
             {
@@ -229,16 +290,102 @@ public class ThirdPersonController : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// check if ground is a slope, add sliding to movement if so
+    /// </summary>
+    private void SlopeCheck()
+    {
+        if (!Grounded || disableSliding)
+            return;
+
+        isSliding = false;
+        float maxDistance = float.MaxValue;
+        RaycastHit closestHit = new RaycastHit();
+        bool closestHitFound = false;
+
+        // skip potential bad hits and get the closest collider hit
+        for (int i = 0; i < groundHitsBuffer.Length; i++)
+        {
+            if (groundHitsBuffer[i].collider == null ||
+                groundHitsBuffer[i].distance < float.Epsilon ||
+                groundHitsBuffer[i].point == Vector3.zero ||
+                groundHitsBuffer[i].collider.CompareTag("Respawnable") || // the tagged ones was causing issues
+                groundHitsBuffer[i].collider.CompareTag("MagicMoveable"))
+                continue;
+
+            if (groundHitsBuffer[i].distance < maxDistance)
+            {
+                closestHit = groundHitsBuffer[i];
+                maxDistance = groundHitsBuffer[i].distance;
+                closestHitFound = true;
+            }
+        }
+
+        if (!closestHitFound)
+            return;
+
+        float slopeAngle = Mathf.Round(Mathf.Acos(Vector3.Dot(closestHit.normal, Vector3.up)) * Mathf.Rad2Deg);
+        bool shouldSlide = slopeAngle >= controller.slopeLimit && slopeAngle < 90.0f;
+
+        if (!shouldSlide)
+            return;
+        else
+        {
+            isSliding = true;
+
+            //calculate a vector that runs across the slope
+            Vector3 tangent = Vector3.Cross(closestHit.normal, Vector3.up);
+            //from that, calculate the direction of steepest descent
+            Vector3 slideDir = Vector3.Cross(closestHit.normal, tangent);
+
+            this.transform.position += Time.deltaTime * -slidingVelocity * slideDir;
+            Physics.SyncTransforms();
+        }
+
+    }
+
     private void CameraRotation()
     {
         // if there is an input and camera position is not fixed
-        if (input.Look.sqrMagnitude >= threshold && !LockCameraPosition)
+        if (input.Look.sqrMagnitude >= lookInputThreshold && !LockCameraPosition)
         {
             //Don't multiply mouse input by Time.deltaTime;
             float deltaTimeMultiplier = IsCurrentDeviceMouse ? 1.0f : Time.deltaTime;
 
-            cinemachineTargetYaw += input.Look.x * deltaTimeMultiplier;
-            cinemachineTargetPitch += input.Look.y * deltaTimeMultiplier;
+            if (!IsCurrentDeviceMouse)
+            {
+                float xVal = EaseInQuad(cameraRotationTime, input.Look.x * 0.25f, input.Look.x, 0.5f);
+                float yVal = EaseInQuad(cameraRotationTime, input.Look.y * 0.25f, input.Look.y, 0.5f);
+
+                if (input.Look.x < 0f)
+                    xVal = Mathf.Clamp(xVal, input.Look.x, 0f);
+                else
+                    xVal = Mathf.Clamp(xVal, 0f, input.Look.x);
+
+                if (input.Look.y < 0f)
+                    yVal = Mathf.Clamp(yVal, input.Look.y, 0f);
+                else
+                    yVal = Mathf.Clamp(yVal, 0f, input.Look.y);
+
+                cinemachineTargetYaw += xVal * deltaTimeMultiplier;
+                cinemachineTargetPitch += yVal * deltaTimeMultiplier;
+
+                cameraRotationTime += Time.deltaTime;
+            } else
+            {
+                cinemachineTargetYaw += input.Look.x * deltaTimeMultiplier;
+                cinemachineTargetPitch += input.Look.y * deltaTimeMultiplier;
+            }
+
+        } else if (!IsCurrentDeviceMouse)
+        {
+            cameraRotationTime = 0f;
+
+            if (recenterToTargetHeading && input.Move != Vector2.zero)
+            {
+                targetRotation = Quaternion.LookRotation(playerArmature.transform.forward).eulerAngles.y;
+                cinemachineTargetYaw = Mathf.SmoothDampAngle(cinemachineTargetYaw, targetRotation, ref cameraRotationHeadingVelocity, 0.8f);
+            }
         }
 
         // clamp our rotations so our values are limited 360 degrees
@@ -247,6 +394,17 @@ public class ThirdPersonController : MonoBehaviour
 
         // Cinemachine will follow this target
         CinemachineCameraTarget.transform.rotation = Quaternion.Euler(cinemachineTargetPitch + CameraAngleOverride, cinemachineTargetYaw, 0.0f);
+    }
+
+    /// <param name="t">current time</param>
+    /// <param name="b">start value</param>
+    /// <param name="c">change value</param>
+    /// <param name="d">duration</param>
+    /// <returns></returns>
+    private float EaseInQuad(float t, float b, float c, float d)
+    {
+        t /= d;
+        return c * t * t + b;
     }
 
     private void DampenVelocityMomentum()
@@ -361,14 +519,8 @@ public class ThirdPersonController : MonoBehaviour
                 animator.SetBool(animIDFreeFall, false);
             }
 
-            // stop our velocity dropping infinitely when grounded
-            if (verticalVelocity < 0.0f)
-            {
-                verticalVelocity = -2f;
-            }
-
             // Jump, only on frame triggered
-            if (input.Jump && !input.HoldingJump && jumpTimeoutDelta <= 0.0f)
+            if (input.Jump && !input.HoldingJump && !isSliding && jumpTimeoutDelta <= 0.0f)
             {
                 // the square root of H * -2 * G = how much velocity needed to reach desired height
                 verticalVelocity = Mathf.Sqrt(jumpHeight * -2f * gravity);
@@ -404,9 +556,7 @@ public class ThirdPersonController : MonoBehaviour
                     animator.SetBool(animIDFreeFall, true);
                 }
             }
-
         }
-
 
     }
 
@@ -417,6 +567,19 @@ public class ThirdPersonController : MonoBehaviour
         {
             verticalVelocity += gravity * Time.deltaTime;
         }
+
+        // stop our velocity dropping infinitely when grounded
+        if (Grounded && verticalVelocity < 0.0f)
+        {
+            verticalVelocity = -2f;
+        }
+
+        if (isSliding && slidingVelocity < terminalSlidingVelocity)
+        {
+            slidingVelocity += gravity * Time.deltaTime;
+        }
+        else if(slidingVelocity != -2.0f)
+            slidingVelocity = -2.0f;
     }
 
     private static float ClampAngle(float lfAngle, float lfMin, float lfMax)
@@ -441,5 +604,15 @@ public class ThirdPersonController : MonoBehaviour
     public void SetRotateOnMove(bool newRotateOnMove)
     {
         rotateOnMove = newRotateOnMove;
+    }
+
+    public bool IsSprinting(){
+        return input.Sprint;
+    }
+
+    private void OnPause(InputAction.CallbackContext context)
+    {
+        GameManager.Instance.TogglePause();
+        //LockCameraPosition = GameManager.Instance.GameIsPaused;
     }
 }

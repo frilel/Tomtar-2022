@@ -21,7 +21,7 @@ public class GrappleController : MonoBehaviour
         input = GetComponent<StarterAssetsInputs>();
         input.FireEvent.AddListener(Grapple);
 
-        // Linerenderer screwing with stuff in edit mode, must be kept inactive and set active here
+        // Linerenderer screwing with stuff in editor mode, must be kept inactive and set active here
         grappleTransform.gameObject.SetActive(true);
     }
     private void LateUpdate()
