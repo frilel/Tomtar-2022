@@ -16,7 +16,8 @@ public class GameManager : MonoBehaviour
     public ObjectRespawner CurrentObjectRespawner { get; private set; }
     public bool GameIsPaused { get; private set; } = false;
 
-    [SerializeField] GameObject inGameMenu;
+    [SerializeField] private GameObject inGameMenu;
+    [SerializeField] private GameObject player2JoinUI;
     private Checkpoint[] sceneCheckpoints;
     private PlayerInputManager playerInputManager;
 
@@ -29,6 +30,9 @@ public class GameManager : MonoBehaviour
         sceneCheckpoints = FindObjectsOfType<Checkpoint>();
         playerInputManager = FindObjectOfType<PlayerInputManager>();
         playerInputManager.onPlayerJoined += OnPlayerJoined;
+
+        if (player2JoinUI != null && Player2TPC == null)
+            player2JoinUI.SetActive(true);
 
         UnpauseGame();
     }
@@ -81,6 +85,9 @@ public class GameManager : MonoBehaviour
         {
             obj.transform.position = GameManager.Instance.Player1TPC.transform.position + Vector3.up * 1f;
             Physics.SyncTransforms();
+
+            if (player2JoinUI != null)
+                player2JoinUI.SetActive(false);
         }
     }
 }
