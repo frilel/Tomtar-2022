@@ -82,9 +82,10 @@ public class ThirdPersonController : MonoBehaviour
     public float CameraAngleOverride = 0.0f;
     [Tooltip("For locking the camera position on all axis")]
     public bool LockCameraPosition = false;
-    private Cinemachine3rdPersonFollow cm;
+    [Tooltip("Check to have the camera automatically recenter behind character when moving.")]
     [SerializeField] private bool recenterToTargetHeading = false;
-
+    [Tooltip("The amount of time it takes for the camera to recenter.")]
+    [SerializeField] private float recenterToHeadingTime = 0.8f;
 
     // cinemachine
     private float cinemachineTargetYaw;
@@ -384,7 +385,7 @@ public class ThirdPersonController : MonoBehaviour
             if (recenterToTargetHeading && input.Move != Vector2.zero)
             {
                 targetRotation = Quaternion.LookRotation(playerArmature.transform.forward).eulerAngles.y;
-                cinemachineTargetYaw = Mathf.SmoothDampAngle(cinemachineTargetYaw, targetRotation, ref cameraRotationHeadingVelocity, 0.8f);
+                cinemachineTargetYaw = Mathf.SmoothDampAngle(cinemachineTargetYaw, targetRotation, ref cameraRotationHeadingVelocity, recenterToHeadingTime);
             }
         }
 
