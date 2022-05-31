@@ -9,6 +9,9 @@ EditorBuildSettings:
     path: Assets/Scenes/Final Scenes/MainMenu.unity
     guid: e431bddd6372aa2498125ef4cb3b28f3
   - enabled: 1
+    path: Assets/Scenes/Final Scenes/Tutorial/Tutorial.unity
+    guid: dded5542ae953a84b97127de94945892
+  - enabled: 1
     path: Assets/Scenes/Final Scenes/Level1/Level1.unity
     guid: b0495386e25bfc44b8f630862381dce4
   - enabled: 1
