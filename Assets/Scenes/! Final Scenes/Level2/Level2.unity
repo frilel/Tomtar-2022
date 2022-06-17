@@ -8453,11 +8453,7 @@ PrefabInstance:
     - target: {fileID: 1884594448483764480, guid: a83fe00a9a2d547418bb9338c84387d2, type: 3}
       propertyPath: m_PlayerPrefab
       value: 
-      objectReference: {fileID: 3308139031947842455, guid: 07d3a9e4a5fbb5148bdae17fea18ecbc, type: 3}
-    - target: {fileID: 1884594448483764480, guid: a83fe00a9a2d547418bb9338c84387d2, type: 3}
-      propertyPath: m_FixedNumberOfSplitScreens
-      value: -1
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 5402919960751112397, guid: 8b46aea8d53fcce40a9818fc1245bbd4, type: 3}
     - target: {fileID: 1884594448483764481, guid: a83fe00a9a2d547418bb9338c84387d2, type: 3}
       propertyPath: m_RootOrder
       value: 5
