@@ -23,6 +23,7 @@ public class GrappleController : MonoBehaviour
 
         // Linerenderer screwing with stuff in editor mode, must be kept inactive and set active here
         grappleTransform.gameObject.SetActive(true);
+        grappleTransform.SetPositionAndRotation(grappleOrigin.position, grappleOrigin.rotation);
     }
     private void LateUpdate()
     {
