@@ -28,10 +28,6 @@ public class GameManager : MonoBehaviour
             Instance = this;
             DontDestroyOnLoad(this.gameObject);
         } 
-        else
-        {
-            Destroy(this.gameObject);
-        }
     }
     private void Start()
     {

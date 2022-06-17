@@ -15,10 +15,6 @@ class AudioManager : MonoBehaviour
             Instance = this;
             DontDestroyOnLoad(this.gameObject);
         } 
-        else
-        {
-            Destroy(this.gameObject);
-        }
     }
 
     public void Play(Sound sound)
